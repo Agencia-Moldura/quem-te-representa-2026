@@ -194,21 +194,40 @@ function CandidatoCard({
 
 interface Props {
   candidatos: Candidato[]
+  totalFiltrado?: number
+  total?: number
   agruparPorCargo?: boolean
-  truncadoEm?: number
   extraChips?: ExtraChips
 }
 
-function Contagem({ n, truncado }: { n: number; truncado: boolean }) {
+function Contagem({
+  mostrando,
+  totalFiltrado,
+  total,
+}: {
+  mostrando: number
+  totalFiltrado?: number
+  total?: number
+}) {
+  const fmt = (x: number) => x.toLocaleString('pt-BR')
+  const bate = totalFiltrado ?? mostrando
+  const truncado = bate > mostrando
   return (
     <p className="contagem">
-      {n} candidato{n === 1 ? '' : 's'}
-      {truncado ? ' · limite atingido, refine os filtros' : ''}
+      <strong>{fmt(bate)}</strong>
+      {total != null && total !== bate ? ` de ${fmt(total)}` : ''} candidato{bate === 1 ? '' : 's'}
+      {truncado ? ` · mostrando os ${fmt(mostrando)} primeiros, refine os filtros` : ''}
     </p>
   )
 }
 
-export function ResultadoLista({ candidatos, agruparPorCargo, truncadoEm, extraChips }: Props) {
+export function ResultadoLista({
+  candidatos,
+  totalFiltrado,
+  total,
+  agruparPorCargo,
+  extraChips,
+}: Props) {
   const [rel, setRel] = useState<RelacoesExecutivas | null>(null)
 
   useEffect(() => {
@@ -228,7 +247,9 @@ export function ResultadoLista({ candidatos, agruparPorCargo, truncadoEm, extraC
     return <p className="vazio">Nenhum candidato para esses filtros.</p>
   }
 
-  const truncado = truncadoEm != null && candidatos.length >= truncadoEm
+  const contagem = (
+    <Contagem mostrando={candidatos.length} totalFiltrado={totalFiltrado} total={total} />
+  )
 
   if (agruparPorCargo) {
     const grupos = new Map<string, Candidato[]>()
@@ -239,7 +260,7 @@ export function ResultadoLista({ candidatos, agruparPorCargo, truncadoEm, extraC
     }
     return (
       <div>
-        <Contagem n={candidatos.length} truncado={truncado} />
+        {contagem}
         {[...grupos.entries()].map(([cargo, lista]) => (
           <Fragment key={cargo}>
             <h3 className="grupo-titulo">
@@ -258,7 +279,7 @@ export function ResultadoLista({ candidatos, agruparPorCargo, truncadoEm, extraC
 
   return (
     <div>
-      <Contagem n={candidatos.length} truncado={truncado} />
+      {contagem}
       <ul className="cand-grid">
         {candidatos.map((c) => (
           <CandidatoCard key={c.sq_candidato} c={c} extraChips={extraChips} rel={rel} />

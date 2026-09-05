@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
 import { Field } from '../components/Campos'
@@ -84,6 +85,8 @@ export function CaminhoRelacionamento() {
     return tags
   }
 
+  if (!uf) return <Navigate to="/match-eleitoral-2026" replace />
+
   return (
     <section>
       <CaminhoHeader
@@ -92,12 +95,7 @@ export function CaminhoRelacionamento() {
         sub="Diga em quem você pensa em votar para presidência e para o governo do seu estado. Listamos os candidatos cujo partido integra a coligação de uma dessas candidaturas (ou das duas)."
       />
 
-      {!uf ? (
-        <p className="erro">
-          Escolha um <strong>estado</strong> na barra do topo para ver as candidaturas ao governo.
-        </p>
-      ) : (
-        <div className="filtros filtros-rel">
+      <div className="filtros filtros-rel">
           <Field label="Presidência" hint="(opcional)">
             <select className="field-select" value={presSq} onChange={(e) => setPresSq(e.target.value)}>
               <option value="">— nenhuma —</option>
@@ -123,10 +121,9 @@ export function CaminhoRelacionamento() {
           <button className="btn-buscar" type="button" onClick={buscar} disabled={carregando}>
             {carregando ? 'Buscando…' : 'Ver candidatos alinhados'}
           </button>
-        </div>
-      )}
+      </div>
 
-      {erro && uf && <p className="erro">{erro}</p>}
+      {erro && <p className="erro">{erro}</p>}
 
       {(presEscolha || govEscolha) && (
         <div className="coligacao-box">
@@ -148,12 +145,7 @@ export function CaminhoRelacionamento() {
       )}
 
       {resultado && (
-        <ResultadoLista
-          candidatos={resultado}
-          agruparPorCargo
-          truncadoEm={600}
-          extraChips={alinhamentosDe}
-        />
+        <ResultadoLista candidatos={resultado} agruparPorCargo extraChips={alinhamentosDe} />
       )}
     </section>
   )

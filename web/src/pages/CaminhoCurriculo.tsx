@@ -1,13 +1,14 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
 import { CheckGroup, Field } from '../components/Campos'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarPorCurriculo } from '../lib/api'
+import type { ResultadoBusca } from '../lib/api'
 import { FAIXAS_PATRIMONIO, OCUPACOES_COMUNS, ORDENACOES } from '../lib/constants'
 import type { Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
-import type { Candidato } from '../types'
 
 const OPCOES_OCUPACAO = OCUPACOES_COMUNS.map((o) => ({ value: o.id, label: o.label }))
 const OPCOES_FAIXA = FAIXAS_PATRIMONIO.map((f) => ({ value: f.id, label: f.label }))
@@ -22,7 +23,9 @@ export function CaminhoCurriculo() {
 
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [resultado, setResultado] = useState<Candidato[] | null>(null)
+  const [resultado, setResultado] = useState<ResultadoBusca | null>(null)
+
+  if (!uf) return <Navigate to="/match-eleitoral-2026" replace />
 
   async function buscar(e: React.FormEvent) {
     e.preventDefault()
@@ -99,7 +102,9 @@ export function CaminhoCurriculo() {
       </div>
 
       {erro && <p className="erro">{erro}</p>}
-      {resultado && <ResultadoLista candidatos={resultado} truncadoEm={300} />}
+      {resultado && (
+        <ResultadoLista candidatos={resultado.lista} totalFiltrado={resultado.totalFiltrado} total={resultado.total} />
+      )}
     </section>
   )
 }

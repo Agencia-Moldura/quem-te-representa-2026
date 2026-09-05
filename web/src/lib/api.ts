@@ -1,7 +1,17 @@
 import { supabase } from './supabase'
-import { CARGOS_OCULTOS, FAIXAS_PATRIMONIO, OCUPACOES_COMUNS } from './constants'
+import { CARGOS_OCULTOS, FAIXAS_IDADE, FAIXAS_PATRIMONIO, OCUPACOES_COMUNS } from './constants'
 import type { Ordenacao } from './constants'
 import type { Candidato, ColigacaoExecutivo } from '../types'
+
+// resultado de uma busca:
+//  - lista: candidatos (limitada a LIMITE)
+//  - totalFiltrado: quantos batem os filtros do caminho
+//  - total: universo (cargo + estado), antes dos filtros do caminho
+export interface ResultadoBusca {
+  lista: Candidato[]
+  totalFiltrado: number
+  total: number
+}
 
 // [coluna, ascendente] para cada ordenação
 const ORDER_COL: Record<Ordenacao, [string, boolean]> = {
@@ -28,9 +38,18 @@ async function run<T>(q: PromiseLike<{ data: T | null; error: { message: string 
   return (data ?? ([] as unknown as T))
 }
 
+async function runComContagem(
+  q: PromiseLike<{ data: Candidato[] | null; error: { message: string } | null; count: number | null }>,
+): Promise<{ lista: Candidato[]; count: number }> {
+  const { data, error, count } = await q
+  if (error) throw new Error(error.message)
+  return { lista: data ?? [], count: count ?? 0 }
+}
+
 // query base de candidatos: exclui os cargos ocultos (suplentes) sempre.
+// count:'exact' -> a resposta traz também o total que bate os filtros.
 function baseCandidatos() {
-  let q = supabase.from('candidatos').select(COLS)
+  let q = supabase.from('candidatos').select(COLS, { count: 'exact' })
   for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
   return q
 }
@@ -41,27 +60,53 @@ export interface Contexto {
   cargo?: string
 }
 
+// total do universo (cargo + estado), antes dos filtros do caminho — p/ "N de TOTAL"
+async function contarBase(ctx: Contexto): Promise<number> {
+  let q = supabase.from('candidatos').select('sq_candidato', { count: 'exact', head: true })
+  for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
+  if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
+  if (ctx.cargo) q = q.eq('ds_cargo', ctx.cargo)
+  const { count, error } = await q
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
 // ---------- Caminho 1: perfil ----------
 export interface FiltroPerfil extends Contexto {
-  idadeMin?: number
-  idadeMax?: number
+  faixasIdade?: string[] // ids de FAIXAS_IDADE — união
   genero?: string
   corRaca?: string
   ordenar?: Ordenacao
 }
 
-export function buscarPorPerfil(f: FiltroPerfil): Promise<Candidato[]> {
+function termosIdade(ids: string[]): string[] {
+  const t: string[] = []
+  for (const id of ids) {
+    const fx = FAIXAS_IDADE.find((x) => x.id === id)
+    if (!fx) continue
+    if (fx.min != null && fx.max != null) t.push(`and(idade.gte.${fx.min},idade.lte.${fx.max})`)
+    else if (fx.min != null) t.push(`idade.gte.${fx.min}`)
+    else if (fx.max != null) t.push(`idade.lte.${fx.max}`)
+  }
+  return t
+}
+
+export async function buscarPorPerfil(f: FiltroPerfil): Promise<ResultadoBusca> {
   let q = baseCandidatos()
   if (f.uf) q = q.eq('sg_uf', f.uf)
   if (f.cargo) q = q.eq('ds_cargo', f.cargo)
   if (f.genero) q = q.eq('ds_genero', f.genero)
   if (f.corRaca) q = q.eq('ds_cor_raca', f.corRaca)
-  if (f.idadeMin != null) q = q.gte('idade', f.idadeMin)
-  if (f.idadeMax != null) q = q.lte('idade', f.idadeMax)
+  if (f.faixasIdade && f.faixasIdade.length) {
+    const termos = termosIdade(f.faixasIdade)
+    if (termos.length) q = q.or(termos.join(','))
+  }
   const [col, asc] = ORDER_COL[f.ordenar ?? 'nome']
-  return run<Candidato[]>(
-    q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>(),
-  )
+  const [{ lista, count }, total] = await Promise.all([
+    runComContagem(q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>()),
+    contarBase(f),
+  ])
+  return { lista, totalFiltrado: count, total }
 }
 
 // ---------- Caminho 2: currículo ----------
@@ -78,7 +123,7 @@ function termosOcupacao(ids: string[]): string[] {
   for (const id of ids) {
     const op = OCUPACOES_COMUNS.find((o) => o.id === id)
     if (!op) continue
-    if (op.prefixo) t.push(`ds_ocupacao.ilike."${op.prefixo}*"`)
+    for (const p of op.prefixos ?? []) t.push(`ds_ocupacao.ilike."${p}*"`)
     if (op.exatos) t.push(`ds_ocupacao.in.(${op.exatos.map((v) => `"${v}"`).join(',')})`)
   }
   return t
@@ -100,7 +145,7 @@ function termosFaixa(id: string): string[] {
   return t
 }
 
-export function buscarPorCurriculo(f: FiltroCurriculo): Promise<Candidato[]> {
+export async function buscarPorCurriculo(f: FiltroCurriculo): Promise<ResultadoBusca> {
   let q = baseCandidatos()
   if (f.uf) q = q.eq('sg_uf', f.uf)
   if (f.cargo) q = q.eq('ds_cargo', f.cargo)
@@ -117,9 +162,11 @@ export function buscarPorCurriculo(f: FiltroCurriculo): Promise<Candidato[]> {
   }
 
   const [col, asc] = ORDER_COL[f.ordenar ?? 'patrimonio']
-  return run<Candidato[]>(
-    q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>(),
-  )
+  const [{ lista, count }, total] = await Promise.all([
+    runComContagem(q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>()),
+    contarBase(f),
+  ])
+  return { lista, totalFiltrado: count, total }
 }
 
 // ---------- Caminho 3: relacionamento político ----------

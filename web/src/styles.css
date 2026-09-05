@@ -59,6 +59,29 @@ img { max-width: 100%; }
   background: none; border: 0; color: var(--color-primary); font: inherit;
   font-size: var(--font-size-xs); cursor: pointer; text-decoration: underline; padding: var(--space-1);
 }
+.filtro-global--vazio .fg-em { font-weight: var(--font-weight-medium); color: var(--color-primary-dark); }
+
+/* grade de UFs (passo 1 do landing) */
+.uf-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: var(--space-2); max-width: 640px;
+}
+.uf-botao {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: var(--space-3) var(--space-2); min-height: 58px;
+  font: inherit; font-weight: var(--font-weight-bold); font-size: var(--font-size-md);
+  background: var(--color-surface); color: var(--color-primary-dark);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+.uf-botao:hover { border-color: var(--color-primary); background: var(--color-accent-bg); transform: translateY(-2px); }
+.uf-sub { font-size: 9px; font-weight: var(--font-weight-regular); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.link-inline {
+  background: none; border: 0; padding: 0; font: inherit; font-size: 0.9em;
+  color: var(--color-primary); text-decoration: underline; cursor: pointer;
+}
+.contagem strong { color: var(--color-text); font-weight: var(--font-weight-bold); }
 
 /* ==========================================================================
    PÁGINAS — títulos, contexto, navegação

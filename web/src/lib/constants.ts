@@ -36,6 +36,22 @@ export const GRAUS_INSTRUCAO = [
   'NÃO DIVULGÁVEL',
 ]
 
+// faixas de idade (multi-seleção, união). min/max inclusivos.
+export interface FaixaIdade {
+  id: string
+  label: string
+  min?: number
+  max?: number
+}
+
+export const FAIXAS_IDADE: FaixaIdade[] = [
+  { id: 'ate-25', label: 'Até 25 anos', max: 25 },
+  { id: '25-34', label: '25 a 34 anos', min: 25, max: 34 },
+  { id: '35-50', label: '35 a 50 anos', min: 35, max: 50 },
+  { id: '51-70', label: '51 a 70 anos', min: 51, max: 70 },
+  { id: '70-mais', label: '70 anos ou mais', min: 70 },
+]
+
 export type Ordenacao = 'nome' | 'patrimonio' | 'idade_asc' | 'idade_desc'
 
 export const ORDENACOES: { id: Ordenacao; label: string }[] = [
@@ -70,18 +86,25 @@ export interface OpcaoOcupacao {
   id: string
   label: string
   exatos?: string[]
-  prefixo?: string // ilike 'PREFIXO%'
+  prefixos?: string[] // ilike 'PREFIXO%' (qualquer um)
 }
 
 export const OCUPACOES_COMUNS: OpcaoOcupacao[] = [
-  { id: 'servidor-publico', label: 'Servidor público (todos)', prefixo: 'SERVIDOR PÚBLICO' },
-  { id: 'professor', label: 'Professor (todos)', prefixo: 'PROFESSOR' },
+  { id: 'servidor-publico', label: 'Servidor público (todos)', prefixos: ['SERVIDOR PÚBLICO'] },
+  { id: 'professor', label: 'Professor (todos)', prefixos: ['PROFESSOR'] },
+  {
+    id: 'seguranca',
+    label: 'Policial / bombeiro / militar',
+    prefixos: ['POLICIAL', 'BOMBEIRO'],
+    exatos: ['MILITAR REFORMADO'],
+  },
+  {
+    id: 'parlamentar',
+    label: 'Deputado / vereador',
+    exatos: ['DEPUTADO', 'VEREADOR'],
+  },
   { id: 'empresario', label: 'Empresário', exatos: ['EMPRESÁRIO'] },
   { id: 'advogado', label: 'Advogado', exatos: ['ADVOGADO'] },
-  { id: 'deputado', label: 'Deputado', exatos: ['DEPUTADO'] },
-  { id: 'vereador', label: 'Vereador', exatos: ['VEREADOR'] },
-  { id: 'policial-militar', label: 'Policial militar', exatos: ['POLICIAL MILITAR'] },
-  { id: 'policial-civil', label: 'Policial civil', exatos: ['POLICIAL CIVIL'] },
   { id: 'medico', label: 'Médico', exatos: ['MÉDICO'] },
   { id: 'enfermeiro', label: 'Enfermeiro', exatos: ['ENFERMEIRO'] },
   { id: 'odontologo', label: 'Odontólogo', exatos: ['ODONTÓLOGO'] },

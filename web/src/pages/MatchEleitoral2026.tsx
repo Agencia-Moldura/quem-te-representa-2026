@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { UFS } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 
 const CAMINHOS = [
@@ -26,22 +27,38 @@ const CAMINHOS = [
 ]
 
 export function MatchEleitoral2026() {
-  const { uf, cargo, query } = useContexto()
+  const { uf, cargo, setUf, query } = useContexto()
+
+  if (!uf) {
+    return (
+      <section>
+        <h1 className="page-titulo">Qual é o seu estado?</h1>
+        <p className="page-lead">
+          Comece pelo seu estado. Ele vale para os três caminhos de busca.
+        </p>
+        <div className="uf-grid">
+          {UFS.map((u) => (
+            <button key={u} type="button" className="uf-botao" onClick={() => setUf(u)}>
+              {u}
+              {u === 'BR' && <span className="uf-sub">presidência</span>}
+            </button>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section>
       <h1 className="page-titulo">Como você quer encontrar um candidato?</h1>
       <p className="page-lead">
-        Primeiro escolha o <strong>cargo</strong> e o <strong>estado</strong> na barra acima
-        (vale para os três caminhos). Depois escolha por onde começar.
+        Você está vendo <strong>{cargo || 'todos os cargos'}</strong> em{' '}
+        <strong>{uf}</strong>{' '}
+        <button type="button" className="link-inline" onClick={() => setUf('')}>
+          trocar estado
+        </button>
+        . O cargo se ajusta na barra do topo. Agora escolha por onde começar:
       </p>
-
-      {(uf || cargo) && (
-        <p className="contexto-atual">
-          Filtrando: <strong>{cargo || 'todos os cargos'}</strong> em{' '}
-          <strong>{uf || 'todo o Brasil'}</strong>
-        </p>
-      )}
 
       <div className="caminhos">
         {CAMINHOS.map((c) => (
