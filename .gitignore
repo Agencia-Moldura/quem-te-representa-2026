@@ -1,0 +1,39 @@
+# --- segredos (NUNCA versionar) ---
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# --- Node / front (web/) ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# --- dados brutos / gerados ---
+# ZIPs de foto do TSE já extraídos (grandes; só a URL vai pro banco)
+fotos/
+# logs de execução dos scripts
+scraper/_logs/
+# obs: scraper/_leiame/ é versionado de propósito (dicionário de dados do TSE)
+
+# --- SO / editor ---
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# dumps de dados brutos do TSE extraídos localmente (o scraper baixa sob demanda)
+consulta_*_2026/
+bem_*_2026/
+motivo_*_2026/
+rede_*_2026/

@@ -1,0 +1,160 @@
+import { useEffect, useState } from 'react'
+
+import { CaminhoHeader } from '../components/CaminhoHeader'
+import { Field } from '../components/Campos'
+import { ResultadoLista } from '../components/ResultadoLista'
+import {
+  candidatosAlinhados,
+  governadoresDaUf,
+  presidentes,
+  siglasDaCandidatura,
+} from '../lib/api'
+import { useContexto } from '../lib/contexto'
+import { nomeExibicao, rotuloOpcao, titulo } from '../lib/format'
+import type { Candidato } from '../types'
+
+interface Escolha {
+  cand: Candidato
+  siglas: string[]
+  espectro: string | null
+}
+
+export function CaminhoRelacionamento() {
+  const { uf, cargo } = useContexto()
+
+  const [presis, setPresis] = useState<Candidato[]>([])
+  const [govs, setGovs] = useState<Candidato[]>([])
+  const [presSq, setPresSq] = useState('')
+  const [govSq, setGovSq] = useState('')
+
+  const [presEscolha, setPresEscolha] = useState<Escolha | null>(null)
+  const [govEscolha, setGovEscolha] = useState<Escolha | null>(null)
+  const [resultado, setResultado] = useState<Candidato[] | null>(null)
+
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    presidentes().then(setPresis).catch((e) => setErro(String(e)))
+  }, [])
+
+  useEffect(() => {
+    setGovs([])
+    setGovSq('')
+    setResultado(null)
+    setPresEscolha(null)
+    setGovEscolha(null)
+    if (!uf) return
+    governadoresDaUf(uf).then(setGovs).catch((e) => setErro(String(e)))
+  }, [uf])
+
+  async function buscar() {
+    setErro(null)
+    setResultado(null)
+    const pres = presis.find((p) => p.sq_candidato === presSq) ?? null
+    const gov = govs.find((g) => g.sq_candidato === govSq) ?? null
+    if (!pres && !gov) {
+      setErro('Escolha ao menos uma candidatura (presidência e/ou governo).')
+      return
+    }
+    setCarregando(true)
+    try {
+      const pe = pres ? { cand: pres, ...(await siglasDaCandidatura(pres)) } : null
+      const ge = gov ? { cand: gov, ...(await siglasDaCandidatura(gov)) } : null
+      setPresEscolha(pe)
+      setGovEscolha(ge)
+
+      const uniao = [...new Set([...(pe?.siglas ?? []), ...(ge?.siglas ?? [])])]
+      setResultado(await candidatosAlinhados(uf, uniao, cargo || undefined))
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro')
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  function alinhamentosDe(c: Candidato): string[] {
+    const tags: string[] = []
+    if (presEscolha?.siglas.includes(c.sg_partido ?? '')) {
+      tags.push(`aliado de ${nomeExibicao(presEscolha.cand)} (presidência)`)
+    }
+    if (govEscolha?.siglas.includes(c.sg_partido ?? '')) {
+      tags.push(`aliado de ${nomeExibicao(govEscolha.cand)} (governo)`)
+    }
+    return tags
+  }
+
+  return (
+    <section>
+      <CaminhoHeader
+        n="3"
+        titulo="Relacionamento político"
+        sub="Diga em quem você pensa em votar para presidência e para o governo do seu estado. Listamos os candidatos cujo partido integra a coligação de uma dessas candidaturas (ou das duas)."
+      />
+
+      {!uf ? (
+        <p className="erro">
+          Escolha um <strong>estado</strong> na barra do topo para ver as candidaturas ao governo.
+        </p>
+      ) : (
+        <div className="filtros filtros-rel">
+          <Field label="Presidência" hint="(opcional)">
+            <select className="field-select" value={presSq} onChange={(e) => setPresSq(e.target.value)}>
+              <option value="">— nenhuma —</option>
+              {presis.map((p) => (
+                <option key={p.sq_candidato} value={p.sq_candidato}>
+                  {rotuloOpcao(p)}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label={`Governo de ${uf}`} hint="(opcional)">
+            <select className="field-select" value={govSq} onChange={(e) => setGovSq(e.target.value)}>
+              <option value="">— nenhuma —</option>
+              {govs.map((g) => (
+                <option key={g.sq_candidato} value={g.sq_candidato}>
+                  {rotuloOpcao(g)}{g.nm_coligacao ? ` — ${g.nm_coligacao}` : ''}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <button className="btn-buscar" type="button" onClick={buscar} disabled={carregando}>
+            {carregando ? 'Buscando…' : 'Ver candidatos alinhados'}
+          </button>
+        </div>
+      )}
+
+      {erro && uf && <p className="erro">{erro}</p>}
+
+      {(presEscolha || govEscolha) && (
+        <div className="coligacao-box">
+          {[presEscolha, govEscolha].filter((x): x is Escolha => !!x).map((e) => (
+            <div key={e.cand.sq_candidato} className="coligacao-linha">
+              <div className="coligacao-nome">
+                {nomeExibicao(e.cand)} · {titulo(e.cand.ds_cargo)}
+                {e.cand.nm_coligacao ? ` — ${titulo(e.cand.nm_coligacao)}` : ' (partido isolado)'}
+                {e.espectro ? <span className="chip chip-espectro">{e.espectro}</span> : null}
+              </div>
+              <div className="chips">
+                {e.siglas.map((s) => (
+                  <span key={s} className="chip">{s}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {resultado && (
+        <ResultadoLista
+          candidatos={resultado}
+          agruparPorCargo
+          truncadoEm={600}
+          extraChips={alinhamentosDe}
+        />
+      )}
+    </section>
+  )
+}
