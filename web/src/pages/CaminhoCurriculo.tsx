@@ -2,15 +2,27 @@ import { useEffect, useMemo, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
-import { CheckGroup, Field } from '../components/Campos'
+import { CheckGroup, Field, Select } from '../components/Campos'
+import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
-import { buscarPorCurriculo, ocupacoesDisponiveis } from '../lib/api'
-import type { ResultadoBusca } from '../lib/api'
-import { FAIXAS_PATRIMONIO, OCUPACOES_COMUNS, ORDENACOES } from '../lib/constants'
+import { buscarCandidatos, ocupacoesDisponiveis } from '../lib/api'
+import type { FiltroCandidatos, ResultadoBusca } from '../lib/api'
+import {
+  CORES_RACA,
+  FAIXAS_IDADE,
+  FAIXAS_PATRIMONIO,
+  GENEROS,
+  GRAUS_INSTRUCAO,
+  OCUPACOES_COMUNS,
+  ORDENACOES,
+  SITUACOES,
+} from '../lib/constants'
 import type { OpcaoOcupacao, Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 
 const OPCOES_FAIXA = FAIXAS_PATRIMONIO.map((f) => ({ value: f.id, label: f.label }))
+const OP_IDADE = FAIXAS_IDADE.map((f) => ({ value: f.id, label: f.label }))
+const OP_GRAU = GRAUS_INSTRUCAO.map(([v, l]) => ({ value: v, label: l }))
 
 // grupo de profissão tem candidato no recorte atual?
 function grupoExiste(op: OpcaoOcupacao, valores: string[]): boolean {
@@ -25,6 +37,13 @@ export function CaminhoCurriculo() {
   const [faixas, setFaixas] = useState<string[]>([])
   const [reeleicao, setReeleicao] = useState(false)
   const [ordenar, setOrdenar] = useState<Ordenacao>('patrimonio')
+
+  // mais filtros
+  const [faixasIdade, setFaixasIdade] = useState<string[]>([])
+  const [genero, setGenero] = useState('')
+  const [corRaca, setCorRaca] = useState('')
+  const [escolaridades, setEscolaridades] = useState<string[]>([])
+  const [situacao, setSituacao] = useState<FiltroCandidatos['situacao']>('')
 
   const [dispOcup, setDispOcup] = useState<string[] | null>(null)
   const [carregando, setCarregando] = useState(false)
@@ -58,13 +77,18 @@ export function CaminhoCurriculo() {
     setErro(null)
     try {
       setResultado(
-        await buscarPorCurriculo({
+        await buscarCandidatos({
           uf: uf || undefined,
           cargo: cargo || undefined,
           ocupacoes,
           faixasPatrimonio: faixas,
           reeleicao,
           ordenar,
+          faixasIdade,
+          genero: genero || undefined,
+          corRaca: corRaca || undefined,
+          escolaridades,
+          situacao,
         }),
       )
     } catch (err) {
@@ -118,6 +142,29 @@ export function CaminhoCurriculo() {
             {carregando ? 'Buscando…' : 'Buscar'}
           </button>
         </div>
+
+        <MaisFiltros caminho="Currículo">
+          <CheckGroup label="Faixa de idade" hint="(qualquer uma)" options={OP_IDADE}
+            selected={faixasIdade} onChange={setFaixasIdade} />
+          <CheckGroup label="Escolaridade" hint="(qualquer uma)" options={OP_GRAU}
+            selected={escolaridades} onChange={setEscolaridades} />
+          <div className="filtros-rodape">
+            <Field label="Gênero">
+              <Select value={genero} onChange={setGenero} options={GENEROS} placeholder="todos" />
+            </Field>
+            <Field label="Cor/raça">
+              <Select value={corRaca} onChange={setCorRaca} options={CORES_RACA} placeholder="todas" />
+            </Field>
+            <Field label="Situação da candidatura">
+              <select className="field-select" value={situacao}
+                onChange={(e) => setSituacao(e.target.value as FiltroCandidatos['situacao'])}>
+                {SITUACOES.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </MaisFiltros>
       </form>
 
       <div className="aviso-fase2">

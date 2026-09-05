@@ -3,15 +3,12 @@ import { useCarrinho } from '../lib/carrinho'
 import type { ItemLista } from '../lib/carrinho'
 import { iniciais, titulo } from '../lib/format'
 
-const MAX_LEQUE = 9
-const SPREAD = 82 // graus totais do leque
-
-function Foto({ item }: { item: ItemLista }) {
+function Foto({ item, className }: { item: ItemLista; className: string }) {
   const [erro, setErro] = useState(false)
   if (item.foto_url && !erro) {
-    return <img className="cr-foto" src={item.foto_url} alt="" onError={() => setErro(true)} />
+    return <img className={className} src={item.foto_url} alt="" onError={() => setErro(true)} />
   }
-  return <span className="cr-foto cr-foto--vazia">{iniciais(item.nome)}</span>
+  return <span className={`${className} cr-foto--vazia`}>{iniciais(item.nome)}</span>
 }
 
 export function Carrinho() {
@@ -20,60 +17,72 @@ export function Carrinho() {
 
   if (itens.length === 0) return null
 
-  const leque = itens.slice(-MAX_LEQUE)
-  const extra = itens.length - leque.length
-  const n = leque.length
-
   return (
-    <div className={`carrinho${aberto ? ' is-aberto' : ''}`}>
-      {aberto && (
-        <div className="cr-painel">
-          <div className="cr-painel-topo">
-            <strong>Sua lista · {itens.length}</strong>
-            <button type="button" className="link-inline" onClick={limpar}>limpar tudo</button>
-          </div>
-          <ul className="cr-painel-lista">
-            {[...itens].reverse().map((i) => (
-              <li key={i.sq}>
-                <Foto item={i} />
-                <span className="cr-painel-nome">
-                  <strong>{titulo(i.nome)}</strong>
-                  <span>{i.nr ? `${i.nr} · ` : ''}{i.partido} · {titulo(i.cargo)} {i.uf}</span>
-                </span>
-                <button type="button" className="cr-remover" aria-label="remover" onClick={() => remover(i.sq)}>
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="cr-leque" style={{ ['--n' as string]: n }}>
-        {leque.map((i, idx) => {
-          const ang = n === 1 ? 0 : -SPREAD / 2 + (idx * SPREAD) / (n - 1)
-          return (
+    <>
+      {/* trilho estreito na lateral direita */}
+      <div className="cr-trilho">
+        <button
+          type="button"
+          className="cr-trilho-topo"
+          onClick={() => setAberto(true)}
+          aria-label="abrir sua lista"
+        >
+          <span className="cr-trilho-n">{itens.length}</span>
+          sua lista
+        </button>
+        <div className="cr-trilho-fotos">
+          {[...itens].reverse().map((i) => (
             <button
               key={i.sq}
               type="button"
-              className="cr-carta"
-              style={{ ['--ang' as string]: `${ang}deg` }}
-              title={`${titulo(i.nome)} — clique para remover`}
-              onClick={() => remover(i.sq)}
+              className="cr-mini"
+              title={`${titulo(i.nome)} — ver / remover`}
+              onClick={() => setAberto(true)}
             >
-              <Foto item={i} />
-              <span className="cr-carta-nome">{i.nr ?? ''}</span>
+              <Foto item={i} className="cr-foto" />
+              <span className="cr-mini-nr">{i.nr ?? ''}</span>
             </button>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
-      <button type="button" className="cr-alca" onClick={() => setAberto((v) => !v)}>
-        <span className="cr-alca-n">{itens.length}</span>
-        Sua lista
-        {extra > 0 && <span className="cr-alca-extra">+{extra}</span>}
-        <span className="cr-alca-caret">{aberto ? '▾' : '▴'}</span>
-      </button>
-    </div>
+      {/* gaveta */}
+      {aberto && (
+        <>
+          <div className="cr-overlay" onClick={() => setAberto(false)} />
+          <aside className="cr-gaveta">
+            <div className="cr-gaveta-topo">
+              <strong>Sua lista · {itens.length}</strong>
+              <div className="cr-gaveta-acoes">
+                <button type="button" className="link-inline" onClick={limpar}>limpar tudo</button>
+                <button type="button" className="cr-fechar" onClick={() => setAberto(false)} aria-label="fechar">×</button>
+              </div>
+            </div>
+            <p className="cr-gaveta-nota">
+              Salva só nesta sessão do navegador. Acompanha você entre os cargos.
+            </p>
+            <ul className="cr-gaveta-lista">
+              {[...itens].reverse().map((i) => (
+                <li key={i.sq}>
+                  <Foto item={i} className="cr-foto cr-foto--g" />
+                  <span className="cr-gaveta-nome">
+                    <strong>{titulo(i.nome)}</strong>
+                    <span>{i.nr ? `${i.nr} · ` : ''}{i.partido} · {titulo(i.cargo)} {i.uf}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="cr-remover"
+                    aria-label="remover"
+                    onClick={() => remover(i.sq)}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        </>
+      )}
+    </>
   )
 }

@@ -1,6 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
 import { Carrinho } from './Carrinho'
 import { FiltroGlobal } from './FiltroGlobal'
+import { Stepper } from './Stepper'
 
 export function Layout() {
   return (
@@ -14,6 +15,7 @@ export function Layout() {
         </span>
       </header>
 
+      <Stepper />
       <FiltroGlobal />
 
       <main className="content">

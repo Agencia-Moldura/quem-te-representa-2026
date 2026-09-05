@@ -83,13 +83,23 @@ async function contarBase(ctx: Contexto): Promise<number> {
   return count ?? 0
 }
 
-// ---------- Caminho 1: perfil ----------
-export interface FiltroPerfil extends Contexto {
-  faixasIdade?: string[] // ids de FAIXAS_IDADE — união
+// ---------- filtros de candidato (compartilhados pelos caminhos) ----------
+export interface FiltroCandidatos extends Contexto {
+  faixasIdade?: string[]       // ids de FAIXAS_IDADE — união
   genero?: string
   corRaca?: string
+  escolaridades?: string[]     // valores exatos de ds_grau_instrucao — união
+  estadosCivis?: string[]      // valores exatos de ds_estado_civil — união
+  ocupacoes?: string[]         // ids de OCUPACOES_COMUNS — união
+  faixasPatrimonio?: string[]  // ids de FAIXAS_PATRIMONIO — união
+  reeleicao?: boolean
+  situacao?: 'deferido' | 'aguardando' | ''
   ordenar?: Ordenacao
 }
+
+// aliases pra retrocompat
+export type FiltroPerfil = FiltroCandidatos
+export type FiltroCurriculo = FiltroCandidatos
 
 function termosIdade(ids: string[]): string[] {
   const t: string[] = []
@@ -103,33 +113,6 @@ function termosIdade(ids: string[]): string[] {
   return t
 }
 
-export async function buscarPorPerfil(f: FiltroPerfil): Promise<ResultadoBusca> {
-  let q = baseCandidatos()
-  if (f.uf) q = q.eq('sg_uf', f.uf)
-  if (f.cargo) q = q.eq('ds_cargo', f.cargo)
-  if (f.genero) q = q.eq('ds_genero', f.genero)
-  if (f.corRaca) q = q.eq('ds_cor_raca', f.corRaca)
-  if (f.faixasIdade && f.faixasIdade.length) {
-    const termos = termosIdade(f.faixasIdade)
-    if (termos.length) q = q.or(termos.join(','))
-  }
-  const [col, asc] = ORDER_COL[f.ordenar ?? 'nome']
-  const [{ lista, count }, total] = await Promise.all([
-    runComContagem(q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>()),
-    contarBase(f),
-  ])
-  return { lista, totalFiltrado: count, total }
-}
-
-// ---------- Caminho 2: currículo ----------
-export interface FiltroCurriculo extends Contexto {
-  ocupacoes?: string[]        // ids de OCUPACOES_COMUNS — união
-  faixasPatrimonio?: string[] // ids de FAIXAS_PATRIMONIO — união
-  reeleicao?: boolean
-  ordenar?: Ordenacao
-}
-
-// termos PostgREST (para um or()) das ocupações selecionadas
 function termosOcupacao(ids: string[]): string[] {
   const t: string[] = []
   for (const id of ids) {
@@ -141,7 +124,6 @@ function termosOcupacao(ids: string[]): string[] {
   return t
 }
 
-// monta o predicado de UMA faixa de patrimônio como termo(s) de um or()
 function termosFaixa(id: string): string[] {
   const fx = FAIXAS_PATRIMONIO.find((x) => x.id === id)
   if (!fx) return []
@@ -157,23 +139,38 @@ function termosFaixa(id: string): string[] {
   return t
 }
 
-export async function buscarPorCurriculo(f: FiltroCurriculo): Promise<ResultadoBusca> {
-  let q = baseCandidatos()
+// aplica todos os filtros de FiltroCandidatos numa query já com base
+type Q = ReturnType<typeof baseCandidatos>
+function aplicarFiltros(q: Q, f: FiltroCandidatos): Q {
   if (f.uf) q = q.eq('sg_uf', f.uf)
   if (f.cargo) q = q.eq('ds_cargo', f.cargo)
+  if (f.genero) q = q.eq('ds_genero', f.genero)
+  if (f.corRaca) q = q.eq('ds_cor_raca', f.corRaca)
   if (f.reeleicao) q = q.eq('st_reeleicao', 'S')
-
-  if (f.ocupacoes && f.ocupacoes.length) {
-    const termos = termosOcupacao(f.ocupacoes)
-    if (termos.length) q = q.or(termos.join(','))
+  if (f.escolaridades?.length) q = q.in('ds_grau_instrucao', f.escolaridades)
+  if (f.estadosCivis?.length) q = q.in('ds_estado_civil', f.estadosCivis)
+  if (f.situacao === 'deferido') q = q.ilike('ds_situacao_julgamento', 'DEFERIDO%')
+  if (f.situacao === 'aguardando') {
+    q = q.or('ds_situacao_julgamento.ilike.*AGUARDANDO*,ds_situacao_julgamento.ilike.*PENDENTE*')
   }
-
-  if (f.faixasPatrimonio && f.faixasPatrimonio.length) {
-    const termos = f.faixasPatrimonio.flatMap(termosFaixa)
-    if (termos.length) q = q.or(termos.join(','))
+  if (f.faixasIdade?.length) {
+    const t = termosIdade(f.faixasIdade)
+    if (t.length) q = q.or(t.join(','))
   }
+  if (f.ocupacoes?.length) {
+    const t = termosOcupacao(f.ocupacoes)
+    if (t.length) q = q.or(t.join(','))
+  }
+  if (f.faixasPatrimonio?.length) {
+    const t = f.faixasPatrimonio.flatMap(termosFaixa)
+    if (t.length) q = q.or(t.join(','))
+  }
+  return q
+}
 
-  const [col, asc] = ORDER_COL[f.ordenar ?? 'patrimonio']
+export async function buscarCandidatos(f: FiltroCandidatos): Promise<ResultadoBusca> {
+  const q = aplicarFiltros(baseCandidatos(), f)
+  const [col, asc] = ORDER_COL[f.ordenar ?? 'nome']
   const [{ lista, count }, total] = await Promise.all([
     runComContagem(q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>()),
     contarBase(f),
@@ -233,11 +230,11 @@ export async function siglasDaCandidatura(c: Candidato): Promise<{ siglas: strin
 export function candidatosAlinhados(
   uf: string,
   partidos: string[],
-  cargo?: string,
+  extra: FiltroCandidatos = {},
 ): Promise<Candidato[]> {
   if (partidos.length === 0) return Promise.resolve([])
-  let q = baseCandidatos().eq('sg_uf', uf).in('sg_partido', partidos)
-  if (cargo) q = q.eq('ds_cargo', cargo)
+  let q = aplicarFiltros(baseCandidatos(), { ...extra, uf })
+  q = q.in('sg_partido', partidos)
   return run<Candidato[]>(
     q.order('ds_cargo').order('nm_urna_candidato').limit(600).returns<Candidato[]>(),
   )

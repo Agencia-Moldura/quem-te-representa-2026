@@ -3,14 +3,6 @@ import { Link } from 'react-router-dom'
 import { UFS } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 
-const PASSOS = [
-  { n: 1, titulo: 'Escolher seu estado' },
-  { n: 2, titulo: 'Selecionar um cargo' },
-  { n: 3, titulo: 'Escolher seu caminho como eleitor' },
-  { n: 4, titulo: 'Ver os candidatos que dão match' },
-  { n: 5, titulo: 'Criar sua lista de opções', opcional: true },
-]
-
 const CAMINHOS = [
   {
     to: 'perfil',
@@ -56,25 +48,16 @@ export function MatchEleitoral2026() {
     setComecou(true)
   }
 
-  // ---- intro: os 5 passos + Começar ----
+  // ---- intro: os 5 passos (no stepper do topo) + Começar ----
   if (!comecou && !uf) {
     return (
       <section className="intro">
         <h1 className="page-titulo">Encontre candidatos que combinam com você</h1>
         <p className="page-lead">
-          Um jeito rápido de conhecer quem está na disputa em 2026. São 5 passos:
+          Um jeito rápido de conhecer quem está na disputa em 2026. Siga os passos
+          da barra acima — em cerca de um minuto você chega numa lista de candidatos
+          que fazem sentido pra você.
         </p>
-        <ol className="passos">
-          {PASSOS.map((p) => (
-            <li key={p.n} className="passo">
-              <span className="passo-n">{p.n}</span>
-              <span className="passo-txt">
-                {p.titulo}
-                {p.opcional && <span className="passo-opc">opcional</span>}
-              </span>
-            </li>
-          ))}
-        </ol>
         <button type="button" className="btn-comecar" onClick={comecar}>
           Começar
         </button>
@@ -86,7 +69,7 @@ export function MatchEleitoral2026() {
   if (!uf) {
     return (
       <section>
-        <h1 className="page-titulo">Passo 1 · Qual é o seu estado?</h1>
+        <h1 className="page-titulo">Qual é o seu estado?</h1>
         <p className="page-lead">Ele vale para os três caminhos de busca.</p>
         <div className="uf-grid">
           {UFS.map((u) => (
@@ -103,13 +86,13 @@ export function MatchEleitoral2026() {
   // ---- passos 2 e 3: cargo (barra do topo) + caminho ----
   return (
     <section>
-      <h1 className="page-titulo">Passo 3 · Como você quer encontrar um candidato?</h1>
+      <h1 className="page-titulo">Como você quer encontrar um candidato?</h1>
       <p className="page-lead">
         Você está vendo <strong>{cargo || 'todos os cargos'}</strong> em <strong>{uf}</strong>{' '}
         <button type="button" className="link-inline" onClick={() => setUf('')}>
           trocar estado
         </button>
-        . Ajuste o <strong>cargo</strong> na barra do topo (passo 2). Agora escolha por onde começar:
+        . Ajuste o <strong>cargo</strong> na barra do topo. Agora escolha por onde começar:
       </p>
 
       <div className="caminhos">

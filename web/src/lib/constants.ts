@@ -25,15 +25,30 @@ export const CORES_RACA = [
   'BRANCA', 'PRETA', 'PARDA', 'AMARELA', 'INDÍGENA', 'NÃO DIVULGÁVEL',
 ]
 
-export const GRAUS_INSTRUCAO = [
-  'LÊ E ESCREVE',
-  'ENSINO FUNDAMENTAL INCOMPLETO',
-  'ENSINO FUNDAMENTAL COMPLETO',
-  'ENSINO MÉDIO INCOMPLETO',
-  'ENSINO MÉDIO COMPLETO',
-  'SUPERIOR INCOMPLETO',
-  'SUPERIOR COMPLETO',
-  'NÃO DIVULGÁVEL',
+// [valor exato no banco, rótulo curto]
+export const GRAUS_INSTRUCAO: [string, string][] = [
+  ['ANALFABETO', 'Analfabeto'],
+  ['LÊ E ESCREVE', 'Lê e escreve'],
+  ['ENSINO FUNDAMENTAL INCOMPLETO', 'Fundamental incompleto'],
+  ['ENSINO FUNDAMENTAL COMPLETO', 'Fundamental'],
+  ['ENSINO MÉDIO INCOMPLETO', 'Médio incompleto'],
+  ['ENSINO MÉDIO COMPLETO', 'Ensino médio'],
+  ['SUPERIOR INCOMPLETO', 'Superior incompleto'],
+  ['SUPERIOR COMPLETO', 'Ensino superior'],
+]
+
+export const ESTADOS_CIVIS: [string, string][] = [
+  ['SOLTEIRO(A)', 'Solteiro(a)'],
+  ['CASADO(A)', 'Casado(a)'],
+  ['DIVORCIADO(A)', 'Divorciado(a)'],
+  ['VIÚVO(A)', 'Viúvo(a)'],
+  ['SEPARADO(A) JUDICIALMENTE', 'Separado(a) judicialmente'],
+]
+
+export const SITUACOES: { id: '' | 'deferido' | 'aguardando'; label: string }[] = [
+  { id: '', label: 'todas' },
+  { id: 'deferido', label: 'candidatura deferida' },
+  { id: 'aguardando', label: 'aguardando julgamento' },
 ]
 
 // faixas de idade (multi-seleção, união). min/max inclusivos.

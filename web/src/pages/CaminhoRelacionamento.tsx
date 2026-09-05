@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
-import { Field } from '../components/Campos'
+import { CheckGroup, Field, Select } from '../components/Campos'
+import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import {
   candidatosAlinhados,
@@ -10,9 +11,13 @@ import {
   presidentes,
   siglasDaCandidatura,
 } from '../lib/api'
+import { CORES_RACA, FAIXAS_IDADE, GENEROS, GRAUS_INSTRUCAO } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import { nomeExibicao, rotuloOpcao, titulo } from '../lib/format'
 import type { Candidato } from '../types'
+
+const OP_IDADE = FAIXAS_IDADE.map((f) => ({ value: f.id, label: f.label }))
+const OP_GRAU = GRAUS_INSTRUCAO.map(([v, l]) => ({ value: v, label: l }))
 
 interface Escolha {
   cand: Candidato
@@ -31,6 +36,12 @@ export function CaminhoRelacionamento() {
   const [presEscolha, setPresEscolha] = useState<Escolha | null>(null)
   const [govEscolha, setGovEscolha] = useState<Escolha | null>(null)
   const [resultado, setResultado] = useState<Candidato[] | null>(null)
+
+  // mais filtros
+  const [faixasIdade, setFaixasIdade] = useState<string[]>([])
+  const [genero, setGenero] = useState('')
+  const [corRaca, setCorRaca] = useState('')
+  const [escolaridades, setEscolaridades] = useState<string[]>([])
 
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -66,7 +77,15 @@ export function CaminhoRelacionamento() {
       setGovEscolha(ge)
 
       const uniao = [...new Set([...(pe?.siglas ?? []), ...(ge?.siglas ?? [])])]
-      setResultado(await candidatosAlinhados(uf, uniao, cargo || undefined))
+      setResultado(
+        await candidatosAlinhados(uf, uniao, {
+          cargo: cargo || undefined,
+          faixasIdade,
+          genero: genero || undefined,
+          corRaca: corRaca || undefined,
+          escolaridades,
+        }),
+      )
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro')
     } finally {
@@ -121,6 +140,21 @@ export function CaminhoRelacionamento() {
           <button className="btn-buscar" type="button" onClick={buscar} disabled={carregando}>
             {carregando ? 'Buscando…' : 'Ver candidatos alinhados'}
           </button>
+
+          <MaisFiltros caminho="Relacionamento">
+            <CheckGroup label="Faixa de idade" hint="(qualquer uma)" options={OP_IDADE}
+              selected={faixasIdade} onChange={setFaixasIdade} />
+            <CheckGroup label="Escolaridade" hint="(qualquer uma)" options={OP_GRAU}
+              selected={escolaridades} onChange={setEscolaridades} />
+            <div className="filtros-rodape">
+              <Field label="Gênero">
+                <Select value={genero} onChange={setGenero} options={GENEROS} placeholder="todos" />
+              </Field>
+              <Field label="Cor/raça">
+                <Select value={corRaca} onChange={setCorRaca} options={CORES_RACA} placeholder="todas" />
+              </Field>
+            </div>
+          </MaisFiltros>
       </div>
 
       {erro && <p className="erro">{erro}</p>}
