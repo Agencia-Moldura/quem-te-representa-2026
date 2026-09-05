@@ -4,14 +4,8 @@ import { useContexto } from '../lib/contexto'
 export function FiltroGlobal() {
   const { uf, cargo, setUf, setCargo } = useContexto()
 
-  if (!uf) {
-    return (
-      <div className="filtro-global filtro-global--vazio">
-        <span className="fg-titulo">Passo 1</span>
-        <span className="fg-em">escolha o seu estado</span>
-      </div>
-    )
-  }
+  // sem estado escolhido a própria página guia (intro / grade de UFs)
+  if (!uf) return null
 
   return (
     <div className="filtro-global">

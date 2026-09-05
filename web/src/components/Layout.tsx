@@ -1,4 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
+import { Carrinho } from './Carrinho'
 import { FiltroGlobal } from './FiltroGlobal'
 
 export function Layout() {
@@ -23,6 +24,8 @@ export function Layout() {
         Fonte: Portal de Dados Abertos do TSE — Candidatos 2026 (arquivo de 05/09/2026).
         Suplentes de senador ficam de fora. Protótipo preliminar.
       </footer>
+
+      <Carrinho />
     </div>
   )
 }

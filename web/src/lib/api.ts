@@ -60,6 +60,18 @@ export interface Contexto {
   cargo?: string
 }
 
+// ocupações (ds_ocupacao) que existem para o cargo+estado — p/ não mostrar
+// opção de filtro que daria zero.
+export async function ocupacoesDisponiveis(ctx: Contexto): Promise<string[]> {
+  let q = supabase.from('candidatos').select('ds_ocupacao')
+  for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
+  if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
+  if (ctx.cargo) q = q.eq('ds_cargo', ctx.cargo)
+  q = q.not('ds_ocupacao', 'is', null).limit(5000)
+  const rows = await run<{ ds_ocupacao: string }[]>(q.returns<{ ds_ocupacao: string }[]>())
+  return [...new Set(rows.map((r) => r.ds_ocupacao))]
+}
+
 // total do universo (cargo + estado), antes dos filtros do caminho — p/ "N de TOTAL"
 async function contarBase(ctx: Contexto): Promise<number> {
   let q = supabase.from('candidatos').select('sq_candidato', { count: 'exact', head: true })

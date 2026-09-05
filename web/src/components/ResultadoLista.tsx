@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import type { CabecaChapa, RelacoesExecutivas } from '../lib/api'
 import { relacoesExecutivas } from '../lib/api'
+import { useCarrinho } from '../lib/carrinho'
 import type { Candidato } from '../types'
 import { brl, iniciais, nomeExibicao, titulo, urlPerfilTse } from '../lib/format'
 
@@ -111,6 +112,8 @@ function CandidatoCard({
   const extras = extraChips?.(c) ?? []
   const sit = situacao(c.ds_situacao_julgamento)
   const [fotoErro, setFotoErro] = useState(false)
+  const { tem, adicionar, remover } = useCarrinho()
+  const naLista = tem(c.sq_candidato)
 
   const temFoto = !!c.foto_url && !fotoErro
 
@@ -123,6 +126,21 @@ function CandidatoCard({
       rel="noopener noreferrer"
       title={`Ver ${nomeExibicao(c)} no DivulgaCandContas do TSE`}
     >
+      <button
+        type="button"
+        className={`cand-add${naLista ? ' is-on' : ''}`}
+        aria-label={naLista ? 'remover da lista' : 'adicionar à lista'}
+        title={naLista ? 'na sua lista — clique para tirar' : 'adicionar à sua lista'}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (naLista) remover(c.sq_candidato)
+          else adicionar(c)
+        }}
+      >
+        {naLista ? '✓' : '+'}
+      </button>
+
       {temFoto && (
         <img
           className="cand-foto"

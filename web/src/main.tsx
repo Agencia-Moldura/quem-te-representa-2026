@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
+import { CarrinhoProvider } from './lib/carrinho'
 import { Layout } from './components/Layout'
 import { MatchEleitoral2026 } from './pages/MatchEleitoral2026'
 import { CaminhoPerfil } from './pages/CaminhoPerfil'
@@ -26,6 +27,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <CarrinhoProvider>
+      <RouterProvider router={router} />
+    </CarrinhoProvider>
   </StrictMode>,
 )

@@ -84,6 +84,128 @@ img { max-width: 100%; }
 .contagem strong { color: var(--color-text); font-weight: var(--font-weight-bold); }
 
 /* ==========================================================================
+   INTRO — os 5 passos + Começar
+   ========================================================================== */
+.intro { max-width: 560px; }
+.passos { list-style: none; margin: var(--space-5) 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.passo {
+  display: flex; align-items: center; gap: var(--space-3);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);
+}
+.passo-n {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--color-accent-bg); color: var(--color-primary-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);
+}
+.passo-txt { font-weight: var(--font-weight-medium); display: flex; align-items: center; gap: var(--space-2); }
+.passo-opc {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--color-text-muted); border: 1px solid var(--color-border);
+  border-radius: var(--radius-full); padding: 1px 6px;
+}
+.btn-comecar {
+  padding: var(--space-3) var(--space-7); font: inherit; font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold); border: 0; border-radius: var(--radius-full);
+  background: var(--color-primary); color: var(--color-text-inverse); cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.btn-comecar:hover { background: var(--color-primary-dark); transform: translateY(-2px); }
+
+/* ==========================================================================
+   CARD — botão "adicionar à lista"
+   ========================================================================== */
+.cand-add {
+  position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2;
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  color: var(--color-primary); font-size: 16px; font-weight: var(--font-weight-bold);
+  line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+}
+.cand-add:hover { background: var(--color-accent-bg); transform: scale(1.1); }
+.cand-add.is-on { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
+.cand-card .cand-topo { padding-left: 32px; } /* espaço pro botão + */
+
+/* ==========================================================================
+   CARRINHO / LISTA — semicírculo fixo na base
+   ========================================================================== */
+.carrinho {
+  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+  z-index: 50; display: flex; flex-direction: column; align-items: center;
+  pointer-events: none;
+}
+.carrinho > * { pointer-events: auto; }
+
+.cr-leque { position: relative; width: 1px; height: 92px; }
+.carrinho.is-aberto .cr-leque { display: none; }
+.cr-carta {
+  position: absolute; left: 50%; bottom: 0;
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(var(--ang)) translateY(-96px);
+  width: 46px; padding: 3px; border: 1px solid var(--color-border);
+  background: var(--color-surface); border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: transform var(--transition-fast);
+}
+.cr-carta:hover { transform: translateX(-50%) rotate(var(--ang)) translateY(-108px); }
+.cr-foto {
+  width: 40px; height: 40px; border-radius: 4px; object-fit: cover; object-position: top center;
+  background: var(--color-accent-bg);
+}
+.cr-foto--vazia {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: var(--font-weight-bold); color: var(--color-primary-dark);
+}
+.cr-carta-nome { font-size: 9px; font-weight: var(--font-weight-bold); color: var(--color-primary-dark); }
+
+.cr-alca {
+  display: flex; align-items: center; gap: var(--space-2);
+  border: 1px solid var(--color-border); border-bottom: 0;
+  background: var(--color-primary); color: var(--color-text-inverse);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: var(--space-2) var(--space-4); font: inherit; font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium); cursor: pointer;
+}
+.cr-alca-n {
+  background: var(--color-text-inverse); color: var(--color-primary-dark);
+  border-radius: 50%; min-width: 20px; height: 20px; padding: 0 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+}
+.cr-alca-extra { font-size: 10px; opacity: 0.8; }
+.cr-alca-caret { font-size: 10px; }
+
+.cr-painel {
+  position: relative; z-index: 2;
+  width: min(92vw, 420px); max-height: 60vh; overflow-y: auto;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+  padding: var(--space-4); margin-bottom: var(--space-2);
+}
+.cr-painel-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+.cr-painel-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.cr-painel-lista li { display: flex; align-items: center; gap: var(--space-3); }
+.cr-painel-nome { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: var(--font-size-xs); }
+.cr-painel-nome strong { font-size: var(--font-size-sm); }
+.cr-painel-nome span { color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr-remover {
+  flex: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  color: var(--color-text-muted); font-size: 15px; line-height: 1;
+}
+.cr-remover:hover { border-color: #A12626; color: #A12626; }
+
+@media (max-width: 520px) {
+  .cr-leque { height: 68px; }
+  .cr-carta { width: 38px; transform: translateX(-50%) rotate(var(--ang)) translateY(-74px); }
+  .cr-carta:hover { transform: translateX(-50%) rotate(var(--ang)) translateY(-82px); }
+  .cr-foto { width: 32px; height: 32px; }
+}
+
+/* ==========================================================================
    PÁGINAS — títulos, contexto, navegação
    ========================================================================== */
 .page-titulo { font-size: var(--font-size-lg); margin: var(--space-1) 0 var(--space-1); letter-spacing: -0.01em; }
