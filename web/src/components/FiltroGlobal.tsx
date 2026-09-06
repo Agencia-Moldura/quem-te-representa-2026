@@ -19,7 +19,7 @@ export function FiltroGlobal() {
       <select value={cargo} onChange={(e) => setCargo(e.target.value)} aria-label="Cargo">
         <option value="">todos os cargos</option>
         {CARGOS.map((c) => (
-          <option key={c} value={c}>{c}</option>
+          <option key={c.value} value={c.value}>{c.label}</option>
         ))}
       </select>
       {cargo && (

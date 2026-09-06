@@ -30,8 +30,10 @@ Opções: `AC AL AM AP BA BR CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR 
 
 #### Cargo — `select_unico`
 Opcional. Opções:
-`todos os cargos` · `PRESIDENTE` · `VICE-PRESIDENTE` · `GOVERNADOR` · `VICE-GOVERNADOR` · `SENADOR` · `DEPUTADO FEDERAL` · `DEPUTADO ESTADUAL` · `DEPUTADO DISTRITAL`
-`1º SUPLENTE` e `2º SUPLENTE` são **sempre ocultos** no app inteiro.
+`todos os cargos` · **`Presidente e vice`** · **`Governador e vice`** · `Senador` · `Deputado federal` · `Deputado estadual` · `Deputado distrital`
+
+- **Presidente e vice** / **Governador e vice** são cargos **agregados**: o filtro casa os dois `ds_cargo` (`PRESIDENTE`+`VICE-PRESIDENTE`, `GOVERNADOR`+`VICE-GOVERNADOR`) e o resultado vira **1 card por chapa** — foto do titular à frente, foto do vice 10° à direita e atrás; clicar na foto de trás traz ela para a frente e o card passa a mostrar os dados dessa pessoa. A contagem fala em "N chapas".
+- `1º SUPLENTE` e `2º SUPLENTE` são **sempre ocultos** no app inteiro.
 
 ---
 

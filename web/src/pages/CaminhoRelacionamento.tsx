@@ -5,6 +5,7 @@ import { CaminhoHeader } from '../components/CaminhoHeader'
 import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { candidatosAlinhados, governadoresDaUf, presidentes, siglasDaCandidatura } from '../lib/api'
+import { ehChapa } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import { nomeExibicao, rotuloOpcao, titulo } from '../lib/format'
 import { OP_COR_RACA, OP_GENERO_CARDS, OP_GRAU, OP_IDADE } from '../lib/opcoes'
@@ -198,7 +199,12 @@ export function CaminhoRelacionamento() {
       )}
 
       {resultado && (
-        <ResultadoLista candidatos={resultado} agruparPorCargo extraChips={alinhamentosDe} />
+        <ResultadoLista
+          candidatos={resultado}
+          agruparPorCargo
+          chapa={ehChapa(cargo)}
+          extraChips={alinhamentosDe}
+        />
       )}
     </section>
   )

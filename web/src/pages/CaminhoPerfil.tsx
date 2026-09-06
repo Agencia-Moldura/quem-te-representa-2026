@@ -6,6 +6,7 @@ import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarCandidatos } from '../lib/api'
 import type { FiltroCandidatos, ResultadoBusca } from '../lib/api'
+import { ehChapa } from '../lib/constants'
 import type { Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import {
@@ -142,6 +143,7 @@ export function CaminhoPerfil() {
           candidatos={resultado.lista}
           totalFiltrado={resultado.totalFiltrado}
           total={resultado.total}
+          chapa={ehChapa(cargo)}
         />
       )}
     </section>

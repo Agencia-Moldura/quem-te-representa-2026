@@ -8,16 +8,45 @@ export const UFS = [
 // o eleitor escolhe diretamente).
 export const CARGOS_OCULTOS = ['1º SUPLENTE', '2º SUPLENTE']
 
-export const CARGOS = [
-  'PRESIDENTE',
-  'VICE-PRESIDENTE',
-  'GOVERNADOR',
-  'VICE-GOVERNADOR',
-  'SENADOR',
-  'DEPUTADO FEDERAL',
-  'DEPUTADO ESTADUAL',
-  'DEPUTADO DISTRITAL',
+// Opções do seletor de cargo. Presidente/governador aparecem agregados com o
+// respectivo vice ("chapa"): o filtro casa os dois ds_cargo e o card mostra as
+// duas fotos. `value` é o que vai na URL (?cargo=).
+export interface OpcaoCargo {
+  value: string
+  label: string
+  cargos: string[] // ds_cargo reais no banco
+  chapa?: boolean // titular + vice pareados por nr_candidato
+}
+
+export const CARGOS: OpcaoCargo[] = [
+  { value: 'PRESIDENTE E VICE', label: 'Presidente e vice', cargos: ['PRESIDENTE', 'VICE-PRESIDENTE'], chapa: true },
+  { value: 'GOVERNADOR E VICE', label: 'Governador e vice', cargos: ['GOVERNADOR', 'VICE-GOVERNADOR'], chapa: true },
+  { value: 'SENADOR', label: 'Senador', cargos: ['SENADOR'] },
+  { value: 'DEPUTADO FEDERAL', label: 'Deputado federal', cargos: ['DEPUTADO FEDERAL'] },
+  { value: 'DEPUTADO ESTADUAL', label: 'Deputado estadual', cargos: ['DEPUTADO ESTADUAL'] },
+  { value: 'DEPUTADO DISTRITAL', label: 'Deputado distrital', cargos: ['DEPUTADO DISTRITAL'] },
 ]
+
+const CARGO_POR_VALOR = new Map(CARGOS.map((c) => [c.value, c]))
+
+/** ds_cargo reais para um valor do seletor (ex.: "GOVERNADOR E VICE" → 2 cargos) */
+export function cargosDoValor(value: string): string[] {
+  return CARGO_POR_VALOR.get(value)?.cargos ?? [value]
+}
+
+/** o valor do seletor agrega titular + vice? */
+export function ehChapa(value: string | undefined): boolean {
+  return !!value && CARGO_POR_VALOR.get(value)?.chapa === true
+}
+
+/** rótulo curto para exibir (fallback: o próprio valor em title-case simples) */
+export function rotuloCargo(value: string | undefined): string {
+  if (!value) return 'todos os cargos'
+  return CARGO_POR_VALOR.get(value)?.label ?? value
+}
+
+// prefixo de ds_cargo que indica "vice" (a chapa é titular + vice)
+export const PREFIXO_VICE = 'VICE-'
 
 export const GENEROS = ['FEMININO', 'MASCULINO', 'NÃO DIVULGÁVEL']
 

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { rotuloCargo } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import { Breadcrumb, Chip, ChipGroup } from '../ui'
 
@@ -20,7 +21,7 @@ export function CaminhoHeader({ n, titulo, sub }: { n: string; titulo: string; s
       <p className="page-lead">{sub}</p>
       <ChipGroup>
         <Chip variant="outline">{uf || 'todo o Brasil'}</Chip>
-        <Chip variant="outline">{cargo || 'todos os cargos'}</Chip>
+        <Chip variant="outline">{rotuloCargo(cargo)}</Chip>
         <span className="contexto-hint">ajuste na barra do topo</span>
       </ChipGroup>
     </header>

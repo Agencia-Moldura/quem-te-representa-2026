@@ -1,5 +1,11 @@
 import { supabase } from './supabase'
-import { CARGOS_OCULTOS, FAIXAS_IDADE, FAIXAS_PATRIMONIO, OCUPACOES_COMUNS } from './constants'
+import {
+  CARGOS_OCULTOS,
+  cargosDoValor,
+  FAIXAS_IDADE,
+  FAIXAS_PATRIMONIO,
+  OCUPACOES_COMUNS,
+} from './constants'
 import type { Ordenacao } from './constants'
 import type { Candidato, ColigacaoExecutivo } from '../types'
 
@@ -31,6 +37,15 @@ const COLS = [
 ].join(',')
 
 const LIMITE = 300
+
+// aplica o filtro de cargo: valor simples → .eq; agregado (chapa) → .in
+function aplicarCargo<
+  T extends { eq(col: string, val: string): T; in(col: string, vals: readonly string[]): T },
+>(q: T, cargo: string | undefined): T {
+  if (!cargo) return q
+  const reais = cargosDoValor(cargo)
+  return reais.length > 1 ? q.in('ds_cargo', reais) : q.eq('ds_cargo', reais[0] ?? cargo)
+}
 
 async function run<T>(q: PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T> {
   const { data, error } = await q
@@ -66,7 +81,7 @@ export async function ocupacoesDisponiveis(ctx: Contexto): Promise<string[]> {
   let q = supabase.from('candidatos').select('ds_ocupacao')
   for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
   if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
-  if (ctx.cargo) q = q.eq('ds_cargo', ctx.cargo)
+  q = aplicarCargo(q, ctx.cargo)
   q = q.not('ds_ocupacao', 'is', null).limit(5000)
   const rows = await run<{ ds_ocupacao: string }[]>(q.returns<{ ds_ocupacao: string }[]>())
   return [...new Set(rows.map((r) => r.ds_ocupacao))]
@@ -77,7 +92,7 @@ async function contarBase(ctx: Contexto): Promise<number> {
   let q = supabase.from('candidatos').select('sq_candidato', { count: 'exact', head: true })
   for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
   if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
-  if (ctx.cargo) q = q.eq('ds_cargo', ctx.cargo)
+  q = aplicarCargo(q, ctx.cargo)
   const { count, error } = await q
   if (error) throw new Error(error.message)
   return count ?? 0
@@ -143,7 +158,7 @@ function termosFaixa(id: string): string[] {
 type Q = ReturnType<typeof baseCandidatos>
 function aplicarFiltros(q: Q, f: FiltroCandidatos): Q {
   if (f.uf) q = q.eq('sg_uf', f.uf)
-  if (f.cargo) q = q.eq('ds_cargo', f.cargo)
+  q = aplicarCargo(q, f.cargo)
   if (f.genero) q = q.eq('ds_genero', f.genero)
   if (f.corRaca) q = q.eq('ds_cor_raca', f.corRaca)
   if (f.reeleicao) q = q.eq('st_reeleicao', 'S')

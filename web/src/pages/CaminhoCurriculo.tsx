@@ -6,7 +6,7 @@ import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarCandidatos, ocupacoesDisponiveis } from '../lib/api'
 import type { FiltroCandidatos, ResultadoBusca } from '../lib/api'
-import { OCUPACOES_COMUNS } from '../lib/constants'
+import { ehChapa, OCUPACOES_COMUNS } from '../lib/constants'
 import type { OpcaoOcupacao, Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import {
@@ -190,6 +190,7 @@ export function CaminhoCurriculo() {
           candidatos={resultado.lista}
           totalFiltrado={resultado.totalFiltrado}
           total={resultado.total}
+          chapa={ehChapa(cargo)}
         />
       )}
     </section>

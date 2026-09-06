@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { UFS } from '../lib/constants'
+import { rotuloCargo, UFS } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import { Button, Icon } from '../ui'
 import type { IconName } from '../ui'
@@ -102,7 +102,7 @@ export function MatchEleitoral2026() {
       <p className="qtr-eyebrow">Passo 3 de 4</p>
       <h1 className="page-titulo">Como você quer encontrar um candidato?</h1>
       <p className="page-lead">
-        Você está vendo <strong>{cargo || 'todos os cargos'}</strong> em <strong>{uf}</strong>{' '}
+        Você está vendo <strong>{rotuloCargo(cargo)}</strong> em <strong>{uf}</strong>{' '}
         <button type="button" className="link-inline" onClick={() => setUf('')}>
           trocar estado
         </button>
