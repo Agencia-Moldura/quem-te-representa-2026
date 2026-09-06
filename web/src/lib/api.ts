@@ -114,6 +114,7 @@ export interface FiltroCandidatos extends Contexto {
   reeleicao?: boolean
   situacao?: 'deferido' | 'aguardando' | ''
   ordenar?: Ordenacao
+  partidos?: string[]          // siglas — sg_partido IN (usado pelo "relacionamento")
 }
 
 // aliases pra retrocompat
@@ -184,6 +185,7 @@ function aplicarFiltros(q: Q, f: FiltroCandidatos): Q {
     const t = f.faixasPatrimonio.flatMap(termosFaixa)
     if (t.length) q = q.or(t.join(','))
   }
+  if (f.partidos?.length) q = q.in('sg_partido', f.partidos)
   return q
 }
 
@@ -246,14 +248,11 @@ export async function siglasDaCandidatura(c: Candidato): Promise<{ siglas: strin
   return { siglas: c.sg_partido ? [c.sg_partido] : [], espectro: null }
 }
 
-export function candidatosAlinhados(
-  uf: string,
-  partidos: string[],
-  extra: FiltroCandidatos = {},
-): Promise<Candidato[]> {
-  if (partidos.length === 0) return Promise.resolve([])
-  let q = aplicarFiltros(baseCandidatos(), { ...extra, uf })
-  q = q.in('sg_partido', partidos)
+// candidatos cujo partido está na coligação escolhida (+ demais filtros). Lista
+// plana, sem contagem — o caminho 3 agrupa por cargo na exibição.
+export function candidatosAlinhados(f: FiltroCandidatos): Promise<Candidato[]> {
+  if (!f.partidos?.length) return Promise.resolve([])
+  const q = aplicarFiltros(baseCandidatos(), f)
   return run<Candidato[]>(
     q.order('ds_cargo').order('nm_urna_candidato').limit(600).returns<Candidato[]>(),
   )

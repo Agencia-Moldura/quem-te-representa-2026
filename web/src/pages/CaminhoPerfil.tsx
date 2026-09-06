@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
+import { FiltroProfissao } from '../components/FiltroProfissao'
 import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarCandidatos } from '../lib/api'
@@ -16,11 +17,13 @@ import {
   OP_GRAU,
   OP_IDADE,
   OP_ORDENACAO,
+  OP_PATRIMONIO,
   OP_SITUACAO,
 } from '../lib/opcoes'
 import {
   Alert,
   Button,
+  Checkbox,
   OptionCardGroup,
   SelectField,
   SwatchSelectGroup,
@@ -35,10 +38,13 @@ export function CaminhoPerfil() {
   const [faixasIdade, setFaixasIdade] = useState<string[]>([])
   const [ordenar, setOrdenar] = useState<Ordenacao>('nome')
 
-  // mais filtros
+  // mais filtros — inclui os do currículo (profissão / patrimônio)
   const [escolaridades, setEscolaridades] = useState<string[]>([])
   const [estadosCivis, setEstadosCivis] = useState<string[]>([])
   const [situacao, setSituacao] = useState<FiltroCandidatos['situacao']>('')
+  const [ocupacoes, setOcupacoes] = useState<string[]>([])
+  const [faixasPatrimonio, setFaixasPatrimonio] = useState<string[]>([])
+  const [reeleicao, setReeleicao] = useState(false)
 
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -61,6 +67,9 @@ export function CaminhoPerfil() {
           escolaridades,
           estadosCivis,
           situacao,
+          ocupacoes,
+          faixasPatrimonio,
+          reeleicao,
           ordenar,
         }),
       )
@@ -128,12 +137,25 @@ export function CaminhoPerfil() {
             onChange={setEstadosCivis}
             options={OP_CIVIL}
           />
-          <SelectField
-            label="Situação da candidatura"
-            value={situacao}
-            onChange={(v) => setSituacao(v as FiltroCandidatos['situacao'])}
-            options={OP_SITUACAO}
+          <FiltroProfissao uf={uf} cargo={cargo} value={ocupacoes} onChange={setOcupacoes} />
+          <TagToggleGroup
+            label="Faixa de patrimônio"
+            hint="qualquer uma"
+            value={faixasPatrimonio}
+            onChange={setFaixasPatrimonio}
+            options={OP_PATRIMONIO}
           />
+          <div className="filtro-form-linha">
+            <Checkbox checked={reeleicao} onChange={setReeleicao}>
+              Concorrendo à reeleição
+            </Checkbox>
+            <SelectField
+              label="Situação da candidatura"
+              value={situacao}
+              onChange={(v) => setSituacao(v as FiltroCandidatos['situacao'])}
+              options={OP_SITUACAO}
+            />
+          </div>
         </MaisFiltros>
       </form>
 

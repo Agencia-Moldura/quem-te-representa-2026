@@ -141,6 +141,12 @@ export interface OpcaoOcupacao {
   prefixos?: string[] // ilike 'PREFIXO%' (qualquer um)
 }
 
+/** o grupo de ocupação tem candidato entre os `valores` (ds_ocupacao) do recorte? */
+export function grupoOcupacaoExiste(op: OpcaoOcupacao, valores: string[]): boolean {
+  if ((op.exatos ?? []).some((v) => valores.includes(v))) return true
+  return (op.prefixos ?? []).some((p) => valores.some((v) => v.startsWith(p)))
+}
+
 export const OCUPACOES_COMUNS: OpcaoOcupacao[] = [
   // --- setor público / política ---
   { id: 'servidor-publico', label: 'Servidor público', prefixos: ['SERVIDOR PÚBLICO'], exatos: ['OCUPANTE DE CARGO EM COMISSÃO', 'MINISTRO DE ESTADO', 'DIPLOMATA'] },

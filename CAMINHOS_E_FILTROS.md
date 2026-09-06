@@ -1,207 +1,159 @@
 # Caminhos e filtros
 
 Estado do front em **2026-09-06**. Fonte: `web/src/lib/constants.ts`,
-`web/src/lib/api.ts` e as páginas em `web/src/pages/`.
+`web/src/lib/opcoes.ts`, `web/src/lib/api.ts`, `web/src/components/` e
+`web/src/pages/`.
 
-Tipos de filtro usados:
+## Tipos de widget
 
-| tipo | como é | comportamento |
+| tipo | componente | comportamento |
 |---|---|---|
-| `selecao_multipla_checkbox` | grupo de checkboxes (componente `CheckGroup`) | **união (OU)** — traz quem bate em QUALQUER opção marcada; nada marcado = não filtra |
-| `select_unico` | `<select>` de uma opção | uma opção por vez; a 1ª opção ("todos"/"nenhuma") = não filtra |
-| `botao_grade` | grade de botões (só o passo 1, estado) | uma opção; obrigatório |
-| `checkbox_booleano` | um checkbox só | ligado/desligado |
-| `ordenacao` | `<select>` | não filtra — só muda a ordem da lista |
+| `tags_uniao` | `TagToggleGroup` — pílulas que ligam/desligam | **união (OU)** — traz quem bate em QUALQUER pílula marcada; nada marcado = não filtra. Tem "limpar (N)". |
+| `cartoes_unica` | `OptionCardGroup` — cartões (com ícone) | uma escolha; clicar de novo desmarca |
+| `swatch_unica` | `SwatchSelectGroup` — pílula com disco de cor | uma escolha; clicar de novo desmarca |
+| `select_unico` | `SelectField` — `<select>` nativo estilizado | uma opção; a 1ª ("todas"/"— nenhuma —") = não filtra |
+| `checkbox` | `Checkbox` | ligado/desligado |
+| `botao_grade` | grade de botões (passo 1, estado) | uma opção; **obrigatório** |
+| `ordenacao` | `SelectField` | não filtra — só muda a ordem |
 
-O limite de exibição é **300 resultados** (a contagem mostra "X de TOTAL" — X = quem bate os filtros, TOTAL = universo do cargo+estado).
+Limite de exibição: **300 resultados**. A contagem mostra "**X de TOTAL**" (X = quem
+bate os filtros; TOTAL = universo cargo+estado). No cargo de chapa mostra "**N chapas**".
+
+## Combinar caminhos
+
+São 3 páginas, mas **cada uma tem, na sanfona "Ver mais filtros de …", os filtros
+das outras** — dá para somar Perfil+Currículo (1+2) e Currículo+Relacionamento (2+3)
+partindo de qualquer página. A busca roda a query certa: se há presidência/governo
+escolhidos, filtra também pelos partidos da coligação.
 
 ---
 
 ## 1. Todos os filtros
 
-### Contexto global (vale para os 3 caminhos)
+### Contexto global (passo 1 e 2 / barra do topo)
 
-Aparece na barra fixa do topo / passos 1 e 2.
-
-#### Estado — `botao_grade` (passo 1) depois `select_unico` (barra)
-**Obrigatório.** Sem estado escolhido nada é exibido.
-Opções: `AC AL AM AP BA BR CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO`
+#### Estado — `botao_grade` (passo 1) / `select_unico` (barra) · **obrigatório**
+`AC AL AM AP BA BR CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO`
 (`BR` = candidaturas nacionais / presidência.)
 
-#### Cargo — `select_unico`
-Opcional. **As opções dependem da UF:**
+#### Cargo — `select_unico` · opcional · **opções dependem da UF**
+- **UF = BR**: `todos os cargos` · `Presidente e vice`
+- **UF = estado**: `todos os cargos` · `Governador e vice` · `Senador` · `Deputado federal` · `Deputado estadual` · `Deputado distrital`
 
-- **UF = BR** (presidência): só `todos os cargos` · **`Presidente e vice`**
-- **UF = estado**: `todos os cargos` · **`Governador e vice`** · `Senador` · `Deputado federal` · `Deputado estadual` · `Deputado distrital`
+`Presidente e vice` / `Governador e vice` são **agregados**: casam os dois `ds_cargo`
+e o resultado vira **1 card por chapa** (foto do titular na frente, vice 10° atrás;
+clicar troca). Trocar de UF com cargo incompatível limpa o cargo. `1º/2º SUPLENTE`
+são sempre ocultos.
 
-Detalhes:
-- **Presidente e vice** / **Governador e vice** são cargos **agregados**: o filtro casa os dois `ds_cargo` (`PRESIDENTE`+`VICE-PRESIDENTE`, `GOVERNADOR`+`VICE-GOVERNADOR`) e o resultado vira **1 card por chapa** — foto do titular à frente, foto do vice 10° à direita e atrás; clicar em qualquer foto troca as posições e o card passa a mostrar os dados da pessoa da frente. A contagem fala em "N chapas".
-- Trocar de BR para um estado (ou vice-versa) com um cargo incompatível selecionado **limpa o cargo**.
-- `1º SUPLENTE` e `2º SUPLENTE` são **sempre ocultos** no app inteiro.
+### Filtros de candidato
 
----
+#### Faixa de idade — `tags_uniao`
+`Até 25 anos` · `25 a 34 anos` · `35 a 50 anos` · `51 a 70 anos` · `70 anos ou mais`
+(limites inclusivos; quem não tem data de nascimento fica de fora ao filtrar).
 
-### Filtros de candidato (podem ser usados em qualquer caminho)
+#### Gênero — `cartoes_unica` (com ícone)
+`Feminino` · `Masculino` · `Não divulgável`
 
-#### Faixa de idade — `selecao_multipla_checkbox` (união)
-Opções: `Até 25 anos` · `25 a 34 anos` · `35 a 50 anos` · `51 a 70 anos` · `70 anos ou mais`
-Limites inclusivos; as faixas se sobrepõem nos anos 25 e 70 (sem problema, é união). Idade é calculada da data de nascimento; quem não tem data fica de fora ao filtrar.
+#### Cor/raça — `swatch_unica` (disco de cor)
+`Branca` · `Preta` · `Parda` · `Amarela` · `Indígena` · `Não divulgável`
 
-#### Gênero — `select_unico`
-Opções: `todos` · `FEMININO` · `MASCULINO` · `NÃO DIVULGÁVEL`
+#### Escolaridade — `tags_uniao`
+`Analfabeto` · `Lê e escreve` · `Fundamental incompleto` · `Fundamental` ·
+`Médio incompleto` · `Ensino médio` · `Superior incompleto` · `Ensino superior`
 
-#### Cor/raça — `select_unico`
-Opções: `todas` · `BRANCA` · `PRETA` · `PARDA` · `AMARELA` · `INDÍGENA` · `NÃO DIVULGÁVEL`
+#### Estado civil — `tags_uniao`
+`Solteiro(a)` · `Casado(a)` · `Divorciado(a)` · `Viúvo(a)` · `Separado(a) judicialmente`
 
-#### Escolaridade — `selecao_multipla_checkbox` (união)
-Opções (rótulo → valor no TSE):
-`Analfabeto` → ANALFABETO ·
-`Lê e escreve` → LÊ E ESCREVE ·
-`Fundamental incompleto` → ENSINO FUNDAMENTAL INCOMPLETO ·
-`Fundamental` → ENSINO FUNDAMENTAL COMPLETO ·
-`Médio incompleto` → ENSINO MÉDIO INCOMPLETO ·
-`Ensino médio` → ENSINO MÉDIO COMPLETO ·
-`Superior incompleto` → SUPERIOR INCOMPLETO ·
-`Ensino superior` → SUPERIOR COMPLETO
+#### Profissão — `tags_uniao` · **dinâmico** (`FiltroProfissao`)
+Só mostra os grupos com candidato no cargo+estado (lê a view `ocupacoes_por_recorte`).
+**~50 grupos** cobrindo praticamente toda `ds_ocupacao` com presença relevante — cada
+grupo soma variações do TSE:
 
-#### Estado civil — `selecao_multipla_checkbox` (união)
-Opções: `Solteiro(a)` · `Casado(a)` · `Divorciado(a)` · `Viúvo(a)` · `Separado(a) judicialmente`
+Servidor público · Parlamentar / chefe de executivo · Juiz / promotor / cartório ·
+Policial / bombeiro / militar · Vigilante / segurança privada · Professor / pedagogo ·
+Médico · Enfermeiro / técnico de enfermagem · Odontólogo · Farmacêutico · Psicólogo ·
+Fisioterapeuta / nutricionista / fono · Veterinário / zootecnista · Agente de saúde /
+biomédico · Advogado · Assistente social · Empresário / diretor de empresa ·
+Comerciante / feirante · Vendedor / representante comercial · Corretor (imóveis /
+seguros) · Administrador · Auxiliar administrativo / escritório · Contador ·
+Economista / bancário · Engenheiro · Arquiteto / urbanista · Agrônomo / técnico
+agrícola · TI / analista de sistemas · Técnico em eletrônica / telecom · Biólogo /
+químico / físico · Jornalista / publicitário / RP · Radialista / locutor · Músico /
+cantor · Ator / artista / produtor cultural · Escritor / historiador / cientista
+social · Atleta / técnico esportivo · Religioso / sacerdote · Agricultor / produtor
+rural · Pescador · Motorista / motoboy / taxista · Construção civil / eletricista ·
+Mecânico / metalúrgico · Operário / indústria / gráfica · Cabeleireiro / manicure /
+estética · Cozinheiro / padeiro / garçom · Serviços gerais / limpeza / portaria ·
+Dona de casa · Estudante / estagiário · Aposentado (não servidor).
 
-#### Profissão — `selecao_multipla_checkbox` (união) · **dinâmico**
-Só mostra os grupos que **têm ao menos um candidato** no cargo+estado selecionado (não aparece opção que daria zero).
-Grupos (alguns somam variações do TSE):
+#### Faixa de patrimônio — `tags_uniao`
+`menos de R$ 100 mil` (inclui quem não declarou bens) · `R$ 100 mil a R$ 500 mil` ·
+`R$ 500 mil a R$ 1 milhão` · `R$ 1 milhão a R$ 5 milhões` · `acima de R$ 5 milhões`
+(mínimo inclusivo, máximo exclusivo).
 
-| rótulo | o que agrupa |
-|---|---|
-| Servidor público (todos) | qualquer `SERVIDOR PÚBLICO *` (estadual, municipal, federal, civil aposentado…) |
-| Professor (todos) | qualquer `PROFESSOR *` (ensino médio, fundamental, superior, formação profissional…) |
-| Policial / bombeiro / militar | `POLICIAL *`, `BOMBEIRO *`, `MILITAR REFORMADO` |
-| Deputado / vereador | `DEPUTADO`, `VEREADOR` |
-| Empresário | EMPRESÁRIO |
-| Advogado | ADVOGADO |
-| Médico | MÉDICO |
-| Enfermeiro | ENFERMEIRO |
-| Odontólogo | ODONTÓLOGO |
-| Comerciante | COMERCIANTE |
-| Administrador | ADMINISTRADOR |
-| Contador | CONTADOR |
-| Engenheiro | ENGENHEIRO |
-| Jornalista e redator | JORNALISTA E REDATOR |
-| Assistente social | ASSISTENTE SOCIAL |
-| Agricultor | AGRICULTOR |
-| Dona de casa | DONA DE CASA |
-| Estudante / estagiário | ESTUDANTE, BOLSISTA, ESTAGIÁRIO E ASSEMELHADOS |
-| Aposentado (não servidor) | APOSENTADO (EXCETO SERVIDOR PÚBLICO) |
-
-#### Faixa de patrimônio — `selecao_multipla_checkbox` (união)
-Soma dos bens declarados no registro. Opções:
-`menos de R$ 100 mil` (inclui quem **não declarou bens**) ·
-`R$ 100 mil a R$ 500 mil` ·
-`R$ 500 mil a R$ 1 milhão` ·
-`R$ 1 milhão a R$ 5 milhões` ·
-`acima de R$ 5 milhões`
-(mínimo inclusivo, máximo exclusivo.)
-
-#### Concorrendo à reeleição — `checkbox_booleano`
-Filtra `st_reeleicao = S`. ⚠️ Hoje **não retorna nada** — o TSE ainda publica esse campo vazio (`#NE`). Deve popular mais perto do pleito.
+#### Concorrendo à reeleição — `checkbox`
+`st_reeleicao = S`. ⚠️ Hoje **não retorna nada** — o TSE ainda publica o campo vazio.
 
 #### Situação da candidatura — `select_unico`
-Opções:
-`todas` ·
-`candidatura deferida` → status começando com `DEFERIDO` (inclui "deferido em prazo recursal") ·
-`aguardando julgamento` → `AGUARDANDO JULGAMENTO` ou `PENDENTE DE JULGAMENTO`
-Obs.: candidaturas com **renúncia** ou **registro indeferido** já são removidas da base, então não aparecem em nenhum filtro.
+`todas` · `candidatura deferida` (status começando com `DEFERIDO`) ·
+`aguardando julgamento` (`AGUARDANDO` ou `PENDENTE`).
+Renúncia e registro indeferido já ficam fora da base.
 
-#### Ordenar por — `ordenacao` (`select_unico`, não filtra)
-Opções: `nome (A–Z)` · `maior patrimônio` · `mais jovem` · `mais velho`
+#### Ordenar por — `ordenacao`
+`nome (A–Z)` · `maior patrimônio` · `mais jovem` · `mais velho`
 
----
-
-### Filtros exclusivos do Caminho 3 (Relacionamento político)
-
-#### Presidência — `select_unico`
-Opcional. Opções: `— nenhuma —` + as 13 candidaturas a presidente, no formato `nº · Nome · PARTIDO`.
-
-#### Governo de {UF} — `select_unico`
-Opcional. Opções: `— nenhuma —` + as candidaturas a governador da UF escolhida, no formato `nº · Nome · PARTIDO — Coligação`.
-
-É preciso escolher **pelo menos uma** das duas (presidência e/ou governo).
+#### Presidência — `select_unico` — `— nenhuma —` + 13 candidaturas a presidente
+#### Governo de {UF} — `select_unico` — `— nenhuma —` + governadores da UF
+Ao escolher uma (ou as duas), filtra pelos **partidos da coligação** daquela
+candidatura. Cada card ganha a etiqueta "aliado de {nome} (presidência/governo)".
 
 ---
 
 ## 2. Como os filtros aparecem em cada caminho
 
-Em todos: **Estado** (obrigatório, passo 1) e **Cargo** (opcional, barra do topo) já estão aplicados antes de entrar no caminho.
+Em todos: **Estado** (obrigatório) e **Cargo** já valem antes de entrar no caminho.
+Os filtros abaixo do "Ver mais filtros de …" são **opcionais** e combinam com os
+principais.
 
 ### Caminho 1 · Perfil
-> "Idade, gênero e cor/raça autodeclarados no registro."
-
-**Filtros principais (visíveis):**
-- Faixa de idade — `selecao_multipla_checkbox`
-- Gênero — `select_unico`
-- Cor/raça — `select_unico`
-- Ordenar por — `ordenacao` (padrão: **nome (A–Z)**)
-
-**Sanfona "Ver mais filtros de Perfil":**
-- Escolaridade — `selecao_multipla_checkbox`
-- Estado civil — `selecao_multipla_checkbox`
-- Situação da candidatura — `select_unico`
-
----
+**Principais:** Faixa de idade · Gênero · Cor/raça · Ordenar por (padrão *nome A–Z*) · Buscar
+**Ver mais filtros de Perfil:** Escolaridade · Estado civil · **Profissão** ·
+**Faixa de patrimônio** · **Concorrendo à reeleição** · Situação da candidatura
+→ dá para somar tudo do Currículo (1+2).
 
 ### Caminho 2 · Currículo
-> "Profissão declarada e patrimônio. Marque quantas opções quiser — o filtro é por união."
-
-**Filtros principais (visíveis):**
-- Profissão — `selecao_multipla_checkbox` (dinâmico: só grupos com candidato no recorte)
-- Faixa de patrimônio — `selecao_multipla_checkbox`
-- Ordenar por — `ordenacao` (padrão: **maior patrimônio**)
-- Concorrendo à reeleição — `checkbox_booleano`
-
-**Sanfona "Ver mais filtros de Currículo":**
-- Faixa de idade — `selecao_multipla_checkbox`
-- Escolaridade — `selecao_multipla_checkbox`
-- Gênero — `select_unico`
-- Cor/raça — `select_unico`
-- Situação da candidatura — `select_unico`
-
-> "Eleições anteriores / cargos já exercidos" aparece como aviso — ainda **não é filtro** (Fase 2).
-
----
+**Principais:** Profissão (dinâmico) · Faixa de patrimônio · Ordenar por (padrão
+*maior patrimônio*) · Concorrendo à reeleição · Buscar
+**Ver mais filtros de Currículo:** **Presidência** · **Governo de {UF}** · Faixa de
+idade · Escolaridade · Gênero · Cor/raça · Situação da candidatura
+→ dá para somar Perfil (1+2) e Relacionamento (2+3). Quando há presidência/governo,
+o card ganha a etiqueta de aliado.
 
 ### Caminho 3 · Relacionamento político
-> "Diga em quem você pensa em votar para presidência e para o governo do seu estado. Listamos os candidatos cujo partido integra a coligação de uma dessas candidaturas."
-
-**Filtros principais (visíveis):**
-- Presidência — `select_unico` (opcional)
-- Governo de {UF} — `select_unico` (opcional)
-- (escolher ao menos uma das duas)
-
-**Sanfona "Ver mais filtros de Relacionamento":**
-- Faixa de idade — `selecao_multipla_checkbox`
-- Escolaridade — `selecao_multipla_checkbox`
-- Gênero — `select_unico`
-- Cor/raça — `select_unico`
-
-O resultado vem **agrupado por cargo** e cada card recebe uma etiqueta ("aliado de {nome} (presidência/governo)"). Não tem "Ordenar por" nem "Situação" neste caminho.
+**Principais:** Presidência · Governo de {UF} (pelo menos uma) · Ver candidatos alinhados
+**Ver mais filtros de Relacionamento:** **Profissão** · **Faixa de patrimônio** ·
+Faixa de idade · Escolaridade · Gênero · Cor/raça · **Concorrendo à reeleição**
+→ dá para somar Currículo (2+3) e Perfil.
+Resultado **agrupado por cargo**; cada card com a etiqueta de aliado. Sem "Ordenar
+por" nem "Situação".
 
 ---
 
-## Resumo — matriz filtro × caminho
+## 3. Matriz filtro × caminho
 
 | filtro | tipo | Perfil | Currículo | Relacionamento |
 |---|---|:---:|:---:|:---:|
 | Estado | botao_grade / select_unico | global | global | global |
-| Cargo | select_unico | global | global | global |
-| Faixa de idade | selecao_multipla_checkbox | principal | mais filtros | mais filtros |
-| Gênero | select_unico | principal | mais filtros | mais filtros |
-| Cor/raça | select_unico | principal | mais filtros | mais filtros |
-| Escolaridade | selecao_multipla_checkbox | mais filtros | mais filtros | mais filtros |
-| Estado civil | selecao_multipla_checkbox | mais filtros | — | — |
+| Cargo (por UF) | select_unico | global | global | global |
+| Faixa de idade | tags_uniao | principal | mais filtros | mais filtros |
+| Gênero | cartoes_unica | principal | mais filtros | mais filtros |
+| Cor/raça | swatch_unica | principal | mais filtros | mais filtros |
+| Escolaridade | tags_uniao | mais filtros | mais filtros | mais filtros |
+| Estado civil | tags_uniao | mais filtros | — | — |
+| Profissão (dinâmico) | tags_uniao | mais filtros | principal | mais filtros |
+| Faixa de patrimônio | tags_uniao | mais filtros | principal | mais filtros |
+| Concorrendo à reeleição | checkbox | mais filtros | principal | mais filtros |
 | Situação da candidatura | select_unico | mais filtros | mais filtros | — |
-| Profissão | selecao_multipla_checkbox (dinâmico) | — | principal | — |
-| Faixa de patrimônio | selecao_multipla_checkbox | — | principal | — |
-| Concorrendo à reeleição | checkbox_booleano | — | principal | — |
-| Presidência | select_unico | — | — | principal |
-| Governo de {UF} | select_unico | — | — | principal |
+| Presidência | select_unico | — | mais filtros | principal |
+| Governo de {UF} | select_unico | — | mais filtros | principal |
 | Ordenar por | ordenacao | principal | principal | — |
