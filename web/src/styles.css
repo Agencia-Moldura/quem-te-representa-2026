@@ -214,23 +214,8 @@ img { max-width: 100%; }
   background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
   padding: var(--space-4);
-  text-decoration: none; color: inherit;
-  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.cand-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 12px 28px rgba(109, 40, 217, 0.14);
-  transform: translateY(-2px);
-}
-.cand-card:focus-visible { outline: none; box-shadow: var(--qtr-ring); }
 .cand-card > * { flex: none; }
-
-.cand-tse {
-  margin-top: var(--space-2); align-self: flex-end;
-  font-size: 10px; font-weight: var(--font-weight-medium); color: var(--color-text-muted);
-  opacity: 0; transition: opacity var(--transition-fast);
-}
-.cand-card:hover .cand-tse, .cand-card:focus-visible .cand-tse { opacity: 1; color: var(--color-primary); }
 
 .cand-ribbon { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0 0 var(--space-2); }
 .cand-ribbon-item { font-size: 10.5px; }
@@ -262,7 +247,17 @@ img { max-width: 100%; }
   font-size: 11px; color: var(--color-text-muted);
   margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.cand-cargo { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--space-2); }
+/* cargo que a pessoa concorre — destaque em verde-limão */
+.cand-cargo-linha {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.cand-cargo {
+  background: var(--qtr-lime); color: var(--qtr-ink);
+  font-size: 11px; font-weight: var(--font-weight-bold);
+  padding: 2px var(--space-2); border-radius: var(--radius-full); line-height: 1.35;
+}
+.cand-cargo-uf { font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: var(--font-weight-medium); }
 .cand-colig {
   font-size: var(--font-size-xs); color: var(--color-primary-dark); margin-top: var(--space-1);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -304,14 +299,14 @@ img { max-width: 100%; }
 .cand-card.com-foto .cand-topo,
 .cand-card.com-foto .cand-nome,
 .cand-card.com-foto .cand-nome-full,
-.cand-card.com-foto .cand-cargo { padding-right: 66px; }
+.cand-card.com-foto .cand-cargo-linha { padding-right: 66px; }
 
 /* ---- chapa: titular + vice, 2 fotos empilhadas com troca ---- */
 .cand-card--chapa.com-foto .cand-ribbon,
 .cand-card--chapa.com-foto .cand-topo,
 .cand-card--chapa.com-foto .cand-nome,
 .cand-card--chapa.com-foto .cand-nome-full,
-.cand-card--chapa.com-foto .cand-cargo { padding-right: 88px; }
+.cand-card--chapa.com-foto .cand-cargo-linha { padding-right: 88px; }
 
 .chapa-fotos {
   position: absolute; top: var(--space-4); right: var(--space-4);
@@ -348,23 +343,24 @@ img { max-width: 100%; }
 .chapa-par {
   display: block; font-size: 10px; color: var(--color-text-muted);
   text-transform: uppercase; letter-spacing: 0.03em;
-  margin: 0 0 var(--space-2); padding-left: 34px; padding-right: 88px;
+  margin: 0 0 var(--space-2); padding-right: 88px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .chapa-par b { color: var(--color-primary); font-weight: var(--font-weight-bold); }
 
-/* card — botão "adicionar à lista" */
+/* botão "adicionar à lista" — canto inferior direito do card */
 .cand-add {
-  position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2;
-  width: 28px; height: 28px; border-radius: var(--radius-full); cursor: pointer;
+  align-self: flex-end; margin-top: var(--space-3);
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px 5px 10px; border-radius: var(--radius-full); cursor: pointer;
   border: 1px solid var(--color-border); background: var(--color-surface);
-  color: var(--color-primary); font-size: 16px; font-weight: var(--font-weight-bold);
-  line-height: 1; display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+  color: var(--color-primary); font: inherit; font-size: 12px; font-weight: var(--font-weight-bold);
+  line-height: 1;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
-.cand-add:hover { background: var(--qtr-violet-100); transform: scale(1.1); }
+.cand-add span[aria-hidden] { font-size: 14px; }
+.cand-add:hover { background: var(--qtr-violet-100); border-color: var(--color-primary-light); }
 .cand-add.is-on { background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary); }
-.cand-card .cand-topo { padding-left: 34px; }
 
 /* bloco "cabeça de chapa aliada" */
 .cand-chapa { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--color-border); }

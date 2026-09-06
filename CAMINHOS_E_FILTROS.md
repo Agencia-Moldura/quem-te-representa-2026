@@ -29,10 +29,14 @@ Opções: `AC AL AM AP BA BR CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR 
 (`BR` = candidaturas nacionais / presidência.)
 
 #### Cargo — `select_unico`
-Opcional. Opções:
-`todos os cargos` · **`Presidente e vice`** · **`Governador e vice`** · `Senador` · `Deputado federal` · `Deputado estadual` · `Deputado distrital`
+Opcional. **As opções dependem da UF:**
 
-- **Presidente e vice** / **Governador e vice** são cargos **agregados**: o filtro casa os dois `ds_cargo` (`PRESIDENTE`+`VICE-PRESIDENTE`, `GOVERNADOR`+`VICE-GOVERNADOR`) e o resultado vira **1 card por chapa** — foto do titular à frente, foto do vice 10° à direita e atrás; clicar na foto de trás traz ela para a frente e o card passa a mostrar os dados dessa pessoa. A contagem fala em "N chapas".
+- **UF = BR** (presidência): só `todos os cargos` · **`Presidente e vice`**
+- **UF = estado**: `todos os cargos` · **`Governador e vice`** · `Senador` · `Deputado federal` · `Deputado estadual` · `Deputado distrital`
+
+Detalhes:
+- **Presidente e vice** / **Governador e vice** são cargos **agregados**: o filtro casa os dois `ds_cargo` (`PRESIDENTE`+`VICE-PRESIDENTE`, `GOVERNADOR`+`VICE-GOVERNADOR`) e o resultado vira **1 card por chapa** — foto do titular à frente, foto do vice 10° à direita e atrás; clicar em qualquer foto troca as posições e o card passa a mostrar os dados da pessoa da frente. A contagem fala em "N chapas".
+- Trocar de BR para um estado (ou vice-versa) com um cargo incompatível selecionado **limpa o cargo**.
 - `1º SUPLENTE` e `2º SUPLENTE` são **sempre ocultos** no app inteiro.
 
 ---

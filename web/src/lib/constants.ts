@@ -16,10 +16,11 @@ export interface OpcaoCargo {
   label: string
   cargos: string[] // ds_cargo reais no banco
   chapa?: boolean // titular + vice pareados por nr_candidato
+  nacional?: boolean // só existe para UF = BR (presidência)
 }
 
 export const CARGOS: OpcaoCargo[] = [
-  { value: 'PRESIDENTE E VICE', label: 'Presidente e vice', cargos: ['PRESIDENTE', 'VICE-PRESIDENTE'], chapa: true },
+  { value: 'PRESIDENTE E VICE', label: 'Presidente e vice', cargos: ['PRESIDENTE', 'VICE-PRESIDENTE'], chapa: true, nacional: true },
   { value: 'GOVERNADOR E VICE', label: 'Governador e vice', cargos: ['GOVERNADOR', 'VICE-GOVERNADOR'], chapa: true },
   { value: 'SENADOR', label: 'Senador', cargos: ['SENADOR'] },
   { value: 'DEPUTADO FEDERAL', label: 'Deputado federal', cargos: ['DEPUTADO FEDERAL'] },
@@ -28,6 +29,11 @@ export const CARGOS: OpcaoCargo[] = [
 ]
 
 const CARGO_POR_VALOR = new Map(CARGOS.map((c) => [c.value, c]))
+
+/** opções de cargo válidas para a UF: BR só tem presidência; UF só tem o resto */
+export function cargosParaUf(uf: string | undefined): OpcaoCargo[] {
+  return CARGOS.filter((c) => (uf === 'BR' ? c.nacional : !c.nacional))
+}
 
 /** ds_cargo reais para um valor do seletor (ex.: "GOVERNADOR E VICE" → 2 cargos) */
 export function cargosDoValor(value: string): string[] {

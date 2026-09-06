@@ -4,15 +4,7 @@ import { relacoesExecutivas } from '../lib/api'
 import { PREFIXO_VICE } from '../lib/constants'
 import { useCarrinho } from '../lib/carrinho'
 import type { Candidato } from '../types'
-import { brl, iniciais, nomeExibicao, titulo, urlPerfilTse } from '../lib/format'
-import { StatusBadge } from '../ui'
-
-const SIT_TONE = {
-  ok: 'success',
-  warn: 'warn',
-  bad: 'danger',
-  neutral: 'neutral',
-} as const
+import { brl, iniciais, nomeExibicao, titulo } from '../lib/format'
 
 type ExtraChips = (c: Candidato) => string[]
 
@@ -30,16 +22,6 @@ const ESCOLARIDADE: Record<string, string> = {
 function escolaridade(s: string | null): string {
   if (!s || s === 'NÃO DIVULGÁVEL') return 'Não informada'
   return ESCOLARIDADE[s] ?? titulo(s)
-}
-
-function situacao(s: string | null): { txt: string; tipo: 'ok' | 'warn' | 'bad' | 'neutral' } | null {
-  if (!s) return null
-  if (s.startsWith('DEFERIDO')) return { txt: 'Deferido', tipo: 'ok' }
-  if (s.startsWith('INDEFERIDO')) return { txt: 'Indeferido', tipo: 'bad' }
-  if (s.includes('RENÚNCIA')) return { txt: 'Renúncia', tipo: 'neutral' }
-  if (s.includes('CANCELAD')) return { txt: 'Cancelado', tipo: 'bad' }
-  if (s.includes('AGUARDANDO') || s.includes('PENDENTE')) return { txt: 'Aguardando julgamento', tipo: 'warn' }
-  return { txt: titulo(s), tipo: 'neutral' }
 }
 
 function limpo(v: string | null): string | null {
@@ -116,28 +98,26 @@ function ChapasAliadas({ c, rel }: { c: Candidato; rel: RelacoesExecutivas | nul
 function AddButton({ c }: { c: Candidato }) {
   const { tem, adicionar, remover } = useCarrinho()
   const naLista = tem(c.sq_candidato)
-  function onClick(e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (naLista) remover(c.sq_candidato)
-    else adicionar(c)
-  }
   return (
     <button
       type="button"
       className={`cand-add${naLista ? ' is-on' : ''}`}
-      aria-label={naLista ? 'remover da lista' : 'adicionar à lista'}
+      aria-label={naLista ? 'remover da sua lista' : 'adicionar à sua lista'}
       title={naLista ? 'na sua lista — clique para tirar' : 'adicionar à sua lista'}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation()
+        if (naLista) remover(c.sq_candidato)
+        else adicionar(c)
+      }}
     >
-      {naLista ? '✓' : '+'}
+      <span aria-hidden="true">{naLista ? '✓' : '+'}</span>
+      <span className="cand-add-txt">{naLista ? 'na lista' : 'lista'}</span>
     </button>
   )
 }
 
-/** corpo do card (tudo depois da foto e do botão +) */
+/** corpo do card (tudo depois da foto) */
 function CardCorpo({ c, extras, rel }: { c: Candidato; extras: string[]; rel: RelacoesExecutivas | null }) {
-  const sit = situacao(c.ds_situacao_julgamento)
   return (
     <>
       {extras.length > 0 && (
@@ -158,7 +138,10 @@ function CardCorpo({ c, extras, rel }: { c: Candidato; extras: string[]; rel: Re
       {c.nm_urna_candidato && c.nm_urna_candidato !== c.nm_candidato && (
         <div className="cand-nome-full">{titulo(c.nm_candidato)}</div>
       )}
-      <div className="cand-cargo">{titulo(c.ds_cargo)} · {c.sg_uf}</div>
+      <div className="cand-cargo-linha">
+        <span className="cand-cargo">{titulo(c.ds_cargo)}</span>
+        <span className="cand-cargo-uf">{c.sg_uf}</span>
+      </div>
       {c.nm_coligacao && (
         <div className="cand-colig" title={c.ds_composicao_coligacao ?? ''}>{titulo(c.nm_coligacao)}</div>
       )}
@@ -186,12 +169,9 @@ function CardCorpo({ c, extras, rel }: { c: Candidato; extras: string[]; rel: Re
           {c.valor_total_bens != null ? brl(c.valor_total_bens) : 'sem bens declarados'}
           {c.qtd_bens ? <span className="cand-bens-sub"> · {c.qtd_bens} bens</span> : null}
         </span>
-        {sit && <StatusBadge tone={SIT_TONE[sit.tipo]}>{sit.txt}</StatusBadge>}
       </div>
 
       <ChapasAliadas c={c} rel={rel} />
-
-      <span className="cand-tse">ver no TSE ↗</span>
     </>
   )
 }
@@ -228,17 +208,11 @@ function CandidatoCard({
 
   return (
     <li className="cand-cell">
-      <a
-        className={`cand-card${comFoto ? ' com-foto' : ''}`}
-        href={urlPerfilTse(c)}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`Ver ${nomeExibicao(c)} no DivulgaCandContas do TSE`}
-      >
-        <AddButton c={c} />
+      <article className={`cand-card${comFoto ? ' com-foto' : ''}`}>
         <Foto c={c} onErro={() => setSemFoto(true)} />
         <CardCorpo c={c} extras={extras} rel={rel} />
-      </a>
+        <AddButton c={c} />
+      </article>
     </li>
   )
 }
@@ -251,11 +225,11 @@ function FotoChapa({
 }: {
   c: Candidato
   papel: 'titular' | 'vice'
-  onClick: (e: React.MouseEvent) => void
+  onClick: () => void
 }) {
   const [erro, setErro] = useState(false)
   const nome = nomeExibicao(c)
-  const dica = `${papel}: ${nome}`
+  const dica = `${papel}: ${nome} — clique para trocar`
   if (!c.foto_url || erro) {
     return (
       <span className="chapa-foto chapa-foto--vazia" data-papel={papel} title={dica} onClick={onClick}>
@@ -291,33 +265,14 @@ function ChapaCard({
   const [viceNaFrente, setViceNaFrente] = useState(false)
   const frente = viceNaFrente ? vice : titular
   const extras = extraChips?.(frente) ?? []
-
-  // clicar na foto de trás traz ela pra frente; na da frente, deixa o link abrir
-  function aoClicar(papel: 'titular' | 'vice') {
-    return (e: React.MouseEvent) => {
-      const estaAtras = (papel === 'vice') !== viceNaFrente
-      if (estaAtras) {
-        e.preventDefault()
-        e.stopPropagation()
-        setViceNaFrente((v) => !v)
-      }
-    }
-  }
+  const trocar = () => setViceNaFrente((v) => !v)
 
   return (
     <li className="cand-cell">
-      <a
-        className="cand-card com-foto cand-card--chapa"
-        href={urlPerfilTse(frente)}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`Ver ${nomeExibicao(frente)} no DivulgaCandContas do TSE`}
-      >
-        <AddButton c={frente} />
-
+      <article className="cand-card com-foto cand-card--chapa">
         <div className="chapa-fotos" data-vice-frente={viceNaFrente || undefined}>
-          <FotoChapa c={titular} papel="titular" onClick={aoClicar('titular')} />
-          <FotoChapa c={vice} papel="vice" onClick={aoClicar('vice')} />
+          <FotoChapa c={titular} papel="titular" onClick={trocar} />
+          <FotoChapa c={vice} papel="vice" onClick={trocar} />
         </div>
 
         <span className="chapa-par">
@@ -325,7 +280,8 @@ function ChapaCard({
         </span>
 
         <CardCorpo c={frente} extras={extras} rel={rel} />
-      </a>
+        <AddButton c={frente} />
+      </article>
     </li>
   )
 }

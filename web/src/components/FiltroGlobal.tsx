@@ -1,4 +1,4 @@
-import { CARGOS, UFS } from '../lib/constants'
+import { cargosParaUf, UFS } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 
 export function FiltroGlobal() {
@@ -6,6 +6,9 @@ export function FiltroGlobal() {
 
   // sem estado escolhido a própria página guia (intro / grade de UFs)
   if (!uf) return null
+
+  // BR só tem presidência; UF só tem os demais cargos
+  const opcoesCargo = cargosParaUf(uf)
 
   return (
     <div className="filtro-global">
@@ -18,7 +21,7 @@ export function FiltroGlobal() {
       <span className="fg-em">·</span>
       <select value={cargo} onChange={(e) => setCargo(e.target.value)} aria-label="Cargo">
         <option value="">todos os cargos</option>
-        {CARGOS.map((c) => (
+        {opcoesCargo.map((c) => (
           <option key={c.value} value={c.value}>{c.label}</option>
         ))}
       </select>
