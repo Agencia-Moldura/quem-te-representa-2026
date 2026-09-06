@@ -76,13 +76,15 @@ export interface Contexto {
 }
 
 // ocupações (ds_ocupacao) que existem para o cargo+estado — p/ não mostrar
-// opção de filtro que daria zero.
+// opção de filtro que daria zero. Lê a view `ocupacoes_por_recorte` (distinct
+// sg_uf/ds_cargo/ds_ocupacao) — pequena, não bate no limite de linhas do
+// PostgREST como uma query direta em `candidatos` bateria.
 export async function ocupacoesDisponiveis(ctx: Contexto): Promise<string[]> {
-  let q = supabase.from('candidatos').select('ds_ocupacao')
+  let q = supabase.from('ocupacoes_por_recorte').select('ds_ocupacao')
   for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
   if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
   q = aplicarCargo(q, ctx.cargo)
-  q = q.not('ds_ocupacao', 'is', null).limit(5000)
+  q = q.limit(2000)
   const rows = await run<{ ds_ocupacao: string }[]>(q.returns<{ ds_ocupacao: string }[]>())
   return [...new Set(rows.map((r) => r.ds_ocupacao))]
 }

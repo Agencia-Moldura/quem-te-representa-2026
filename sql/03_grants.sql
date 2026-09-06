@@ -27,5 +27,6 @@ ALTER TABLE candidato_fotos             ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON candidatos             TO anon, authenticated;
 GRANT SELECT ON patrimonio_por_candidato TO anon, authenticated;
 GRANT SELECT ON coligacoes_executivo   TO anon, authenticated;
+GRANT SELECT ON ocupacoes_por_recorte  TO anon, authenticated;
 
 -- service_role (chave secreta do backend) continua com acesso total — não mexer.

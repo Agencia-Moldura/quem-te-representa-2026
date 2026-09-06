@@ -132,6 +132,8 @@ export const FAIXAS_PATRIMONIO: FaixaPatrimonio[] = [
 // Opções do filtro de profissão (multi-seleção, união). Cada opção casa por
 // valores EXATOS de ds_ocupacao (conferidos no banco) ou por prefixo — o prefixo
 // agrupa variações (ex.: "Servidor público" = estadual + municipal + federal + …).
+// A lista cobre praticamente todas as ocupações declaradas com presença relevante;
+// as que não existem para o cargo/estado escolhido são escondidas na tela.
 export interface OpcaoOcupacao {
   id: string
   label: string
@@ -140,40 +142,146 @@ export interface OpcaoOcupacao {
 }
 
 export const OCUPACOES_COMUNS: OpcaoOcupacao[] = [
-  { id: 'servidor-publico', label: 'Servidor público (todos)', prefixos: ['SERVIDOR PÚBLICO'] },
-  { id: 'professor', label: 'Professor (todos)', prefixos: ['PROFESSOR'] },
+  // --- setor público / política ---
+  { id: 'servidor-publico', label: 'Servidor público', prefixos: ['SERVIDOR PÚBLICO'], exatos: ['OCUPANTE DE CARGO EM COMISSÃO', 'MINISTRO DE ESTADO', 'DIPLOMATA'] },
+  {
+    id: 'parlamentar',
+    label: 'Parlamentar / chefe de executivo',
+    exatos: ['DEPUTADO', 'VEREADOR', 'SENADOR', 'GOVERNADOR', 'PREFEITO'],
+  },
+  {
+    id: 'juridico-estado',
+    label: 'Juiz / promotor / cartório',
+    exatos: ['MAGISTRADO', 'MEMBRO DO MINISTÉRIO PÚBLICO', 'SERVENTUÁRIO DE JUSTIÇA', 'TABELIÃO'],
+  },
+
+  // --- segurança ---
   {
     id: 'seguranca',
     label: 'Policial / bombeiro / militar',
     prefixos: ['POLICIAL', 'BOMBEIRO'],
-    exatos: ['MILITAR REFORMADO'],
+    exatos: ['MILITAR REFORMADO', 'MEMBRO DAS FORÇAS ARMADAS', 'DETETIVE PARTICULAR'],
   },
-  {
-    id: 'parlamentar',
-    label: 'Deputado / vereador',
-    exatos: ['DEPUTADO', 'VEREADOR'],
-  },
-  { id: 'empresario', label: 'Empresário', exatos: ['EMPRESÁRIO'] },
-  { id: 'advogado', label: 'Advogado', exatos: ['ADVOGADO'] },
+  { id: 'vigilante', label: 'Vigilante / segurança privada', exatos: ['VIGILANTE', 'SALVA-VIDAS'] },
+
+  // --- educação ---
+  { id: 'professor', label: 'Professor / pedagogo', prefixos: ['PROFESSOR'], exatos: ['PEDAGOGO', 'DIRETOR DE ESTABELECIMENTO DE ENSINO'] },
+
+  // --- saúde ---
   { id: 'medico', label: 'Médico', exatos: ['MÉDICO'] },
-  { id: 'enfermeiro', label: 'Enfermeiro', exatos: ['ENFERMEIRO'] },
-  { id: 'odontologo', label: 'Odontólogo', exatos: ['ODONTÓLOGO'] },
-  { id: 'comerciante', label: 'Comerciante', exatos: ['COMERCIANTE'] },
-  { id: 'administrador', label: 'Administrador', exatos: ['ADMINISTRADOR'] },
-  { id: 'contador', label: 'Contador', exatos: ['CONTADOR'] },
-  { id: 'engenheiro', label: 'Engenheiro', exatos: ['ENGENHEIRO'] },
-  { id: 'jornalista', label: 'Jornalista e redator', exatos: ['JORNALISTA E REDATOR'] },
+  { id: 'enfermeiro', label: 'Enfermeiro / técnico de enfermagem', exatos: ['ENFERMEIRO', 'TÉCNICO DE ENFERMAGEM E ASSEMELHADOS (EXCETO ENFERMEIRO)'] },
+  { id: 'odontologo', label: 'Odontólogo', exatos: ['ODONTÓLOGO', 'PROTÉTICO'] },
+  { id: 'farmaceutico', label: 'Farmacêutico', exatos: ['FARMACÊUTICO'] },
+  { id: 'psicologo', label: 'Psicólogo', exatos: ['PSICÓLOGO'] },
+  {
+    id: 'fisioterapeuta',
+    label: 'Fisioterapeuta / nutricionista / fono',
+    exatos: ['FISIOTERAPEUTA E TERAPEUTA OCUPACIONAL', 'NUTRICIONISTA E ASSEMELHADOS', 'FONOAUDIÓLOGO', 'TERAPEUTA'],
+  },
+  { id: 'veterinario', label: 'Veterinário / zootecnista', exatos: ['VETERINÁRIO', 'ZOOTECNISTA'] },
+  { id: 'saude-agente', label: 'Agente de saúde / biomédico', exatos: ['AGENTE DE SAÚDE E SANITARISTA', 'BIOMÉDICO'] },
+
+  // --- direito e social ---
+  { id: 'advogado', label: 'Advogado', exatos: ['ADVOGADO'] },
   { id: 'assistente-social', label: 'Assistente social', exatos: ['ASSISTENTE SOCIAL'] },
-  { id: 'agricultor', label: 'Agricultor', exatos: ['AGRICULTOR'] },
+
+  // --- negócios / comércio / administração ---
+  { id: 'empresario', label: 'Empresário / diretor de empresa', exatos: ['EMPRESÁRIO', 'DIRETOR DE EMPRESAS', 'INDUSTRIAL', 'CAPITALISTA DE ATIVOS FINANCEIROS'] },
+  { id: 'comerciante', label: 'Comerciante / feirante', exatos: ['COMERCIANTE', 'FEIRANTE, AMBULANTE E MASCATE'] },
+  {
+    id: 'vendedor',
+    label: 'Vendedor / representante comercial',
+    exatos: [
+      'VENDEDOR DE COMÉRCIO VAREJISTA E ATACADISTA',
+      'VENDEDOR PRACISTA, REPRESENTANTE, CAIXEIRO-VIAJANTE E ASSEMELHADOS',
+      'REPRESENTANTE COMERCIAL',
+      'COMERCIÁRIO',
+      'SUPERVISOR, INSPETOR E AGENTE DE COMPRAS E VENDAS',
+    ],
+  },
+  { id: 'corretor', label: 'Corretor (imóveis / seguros)', exatos: ['CORRETOR DE IMÓVEIS, SEGUROS, TÍTULOS E VALORES', 'SECURITÁRIO'] },
+  { id: 'administrador', label: 'Administrador', exatos: ['ADMINISTRADOR'] },
+  {
+    id: 'administrativo',
+    label: 'Auxiliar administrativo / escritório',
+    exatos: ['AUXILIAR DE ESCRITÓRIO E ASSEMELHADOS', 'AGENTE ADMINISTRATIVO', 'SECRETÁRIO E DATILÓGRAFO', 'GERENTE', 'RECEPCIONISTA', 'DESPACHANTE', 'DIGITADOR'],
+  },
+  { id: 'contador', label: 'Contador', exatos: ['CONTADOR', 'TÉCNICO CONTABILIDADE, ESTATÍSTICA, ECONOMIA DOMÉSTICA E ADMINISTRAÇÃO'] },
+  { id: 'economista', label: 'Economista / bancário', exatos: ['ECONOMISTA', 'BANCÁRIO E ECONOMIÁRIO'] },
+
+  // --- engenharia / técnica / TI ---
+  { id: 'engenheiro', label: 'Engenheiro', exatos: ['ENGENHEIRO'] },
+  { id: 'arquiteto', label: 'Arquiteto / urbanista', exatos: ['ARQUITETO'] },
+  { id: 'agronomo', label: 'Agrônomo / técnico agrícola', exatos: ['AGRÔNOMO', 'TÉCNICO EM AGRONOMIA E AGRIMENSURA'] },
+  { id: 'ti', label: 'TI / analista de sistemas', exatos: ['ANALISTA DE SISTEMAS', 'TÉCNICO EM INFORMÁTICA', 'PROGRAMADOR DE COMPUTADOR', 'OPERADOR DE COMPUTADOR'] },
+  { id: 'tecnico-eletronica', label: 'Técnico em eletrônica / telecom', exatos: ['TÉCNICO DE ELETRICIDADE, ELETRÔNICA E TELECOMUNICAÇÕES'] },
+  { id: 'ciencias', label: 'Biólogo / químico / físico', exatos: ['BIÓLOGO', 'QUÍMICO', 'FÍSICO', 'GEÓLOGO', 'GEÓGRAFO', 'ESTATÍSTICO'] },
+
+  // --- comunicação / cultura ---
+  { id: 'jornalista', label: 'Jornalista / publicitário / RP', exatos: ['JORNALISTA E REDATOR', 'PUBLICITÁRIO', 'RELAÇÕES-PÚBLICAS', 'COMUNICÓLOGO'] },
+  { id: 'radialista', label: 'Radialista / locutor', exatos: ['LOCUTOR E COMENTARISTA DE RÁDIO E TELEVISÃO E RADIALISTA', 'OPERADOR DE EQUIPAMENTO DE RÁDIO, TELEVISÃO, SOM E CINEMA'] },
+  { id: 'musico', label: 'Músico / cantor', exatos: ['MÚSICO', 'CANTOR E COMPOSITOR'] },
+  {
+    id: 'artista',
+    label: 'Ator / artista / produtor cultural',
+    exatos: ['ATOR E DIRETOR DE ESPETÁCULOS PÚBLICOS', 'PRODUTOR DE ESPETÁCULOS PÚBLICOS', 'ARTISTA PLÁSTICO E ASSEMELHADOS', 'ESCULTOR E PINTOR', 'FOTÓGRAFO E ASSEMELHADOS', 'COREÓGRAFO E BAILARINO', 'MODELO', 'ARTISTA DE CIRCO'],
+  },
+  {
+    id: 'escritor',
+    label: 'Escritor / historiador / cientista social',
+    exatos: ['ESCRITOR E CRÍTICO', 'HISTORIADOR', 'SOCIÓLOGO', 'CIENTISTA POLÍTICO', 'ANTROPÓLOGO', 'ARQUEÓLOGO', 'TRADUTOR, INTÉRPRETE E FILÓLOGO', 'BIBLIOTECÁRIO', 'ARQUIVISTA E MUSEÓLOGO'],
+  },
+  { id: 'atleta', label: 'Atleta / técnico esportivo', exatos: ['ATLETA PROFISSIONAL E TÉCNICO EM DESPORTOS'] },
+  { id: 'religioso', label: 'Religioso / sacerdote', exatos: ['SACERDOTE OU MEMBRO DE ORDEM OU SEITA RELIGIOSA'] },
+
+  // --- rural / pesca ---
+  {
+    id: 'agricultor',
+    label: 'Agricultor / produtor rural',
+    exatos: ['AGRICULTOR', 'TRABALHADOR RURAL', 'PRODUTOR AGROPECUÁRIO', 'PECUARISTA', 'OPERADOR DE IMPLEMENTO DE AGRICULTURA, PECUÁRIA E EXPLORAÇÃO FLORESTAL', 'GARIMPEIRO'],
+  },
+  { id: 'pescador', label: 'Pescador', exatos: ['PESCADOR', 'MARINHEIRO CIVIL, CANOEIRO, EMBARCADO E ASSEMELHADOS'] },
+
+  // --- transporte ---
+  {
+    id: 'motorista',
+    label: 'Motorista / motoboy / taxista',
+    exatos: ['MOTORISTA DE VEÍCULOS DE TRANSPORTE COLETIVO DE PASSAGEIROS', 'MOTORISTA PARTICULAR', 'MOTORISTA DE VEÍCULOS DE TRANSPORTE DE CARGA', 'MOTOBOY', 'TAXISTA', 'COBRADOR DE TRANSPORTE COLETIVO'],
+  },
+
+  // --- ofícios / operário ---
+  {
+    id: 'construcao',
+    label: 'Construção civil / eletricista',
+    exatos: ['TRABALHADOR DE CONSTRUÇÃO CIVIL', 'ELETRICISTA E ASSEMELHADOS', 'CARPINTEIRO, MARCENEIRO E ASSEMELHADOS', 'ENCANADOR, SOLDADOR, CHAPEADOR E CALDEIREIRO', 'SERRALHEIRO', 'TÉCNICO DE OBRAS CIVIS, ESTRADAS, SANEAMENTO E ASSEMELHADOS', 'TÉCNICO EM EDIFICAÇÕES', 'MONTADOR DE ESTRUTURA METÁLICA'],
+  },
+  {
+    id: 'mecanico',
+    label: 'Mecânico / metalúrgico',
+    exatos: ['MECÂNICO DE MANUTENÇÃO', 'TÉCNICO DE MECÂNICA', 'TORNEIRO MECÂNICO', 'TRABALHADOR METALÚRGICO E SIDERÚRGICO', 'LANTERNEIRO E PINTOR DE VEÍCULOS', 'FUNILEIRO', 'MONTADOR DE MÁQUINAS'],
+  },
+  { id: 'industria', label: 'Operário / indústria / gráfica', exatos: ['OPERADOR DE APARELHOS DE PRODUÇÃO INDUSTRIAL', 'TRABALHADOR DE ARTES GRÁFICAS'] },
+  {
+    id: 'artesao',
+    label: 'Artesão / costureiro',
+    exatos: ['ARTESÃO', 'ALFAIATE E COSTUREIRO', 'TRABALHADOR DE FABRICAÇÃO DE ROUPAS', 'FIANDEIRO, TECELÃO, TINGIDOR E ASSEMELHADOS'],
+  },
+
+  // --- serviços ---
+  { id: 'beleza', label: 'Cabeleireiro / manicure / estética', exatos: ['CABELEIREIRO E BARBEIRO', 'MANICURE E MAQUILADOR', 'ESTETICISTA', 'MASSAGISTA'] },
+  {
+    id: 'alimentacao',
+    label: 'Cozinheiro / padeiro / garçom',
+    exatos: ['COZINHEIRO', 'PADEIRO, CONFEITEIRO E ASSEMELHADOS', 'GARÇOM', 'ATENDENTE DE LANCHONETE E RESTAURANTE', 'TRABALHADOR DE FABRICAÇÃO E PREPARAÇÃO DE ALIMENTOS E BEBIDAS'],
+  },
+  {
+    id: 'servicos-gerais',
+    label: 'Serviços gerais / limpeza / portaria',
+    exatos: ['PORTEIRO DE EDIFÍCIO, ASCENSORISTA, GARAGISTA E ZELADOR', 'FAXINEIRO', 'GARI OU LIXEIRO', 'JARDINEIRO', 'EMPREGADO DOMÉSTICO', 'CATADOR DE RECICLÁVEIS', 'LAVADOR DE VEÍCULOS', 'FRENTISTA'],
+  },
+
+  // --- sem ocupação remunerada / aposentadoria / estudo ---
   { id: 'dona-de-casa', label: 'Dona de casa', exatos: ['DONA DE CASA'] },
-  {
-    id: 'estudante',
-    label: 'Estudante / estagiário',
-    exatos: ['ESTUDANTE, BOLSISTA, ESTAGIÁRIO E ASSEMELHADOS'],
-  },
-  {
-    id: 'aposentado',
-    label: 'Aposentado (não servidor)',
-    exatos: ['APOSENTADO (EXCETO SERVIDOR PÚBLICO)'],
-  },
+  { id: 'estudante', label: 'Estudante / estagiário', exatos: ['ESTUDANTE, BOLSISTA, ESTAGIÁRIO E ASSEMELHADOS'] },
+  { id: 'aposentado', label: 'Aposentado (não servidor)', exatos: ['APOSENTADO (EXCETO SERVIDOR PÚBLICO)'] },
 ]

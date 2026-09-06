@@ -140,6 +140,16 @@ FROM raw_coligacoes rc
 LEFT JOIN espectro_coligacao ec ON ec.sq_coligacao = rc.sq_coligacao
 WHERE rc.ds_cargo IN ('GOVERNADOR', 'PRESIDENTE');
 
+-- 5) Ocupações declaradas por (estado, cargo). O front usa isso para só oferecer
+--    opções de profissão que existem no recorte. Query direta em `candidatos`
+--    seria truncada pelo max-rows do PostgREST (1000); a view distinta é pequena.
+CREATE OR REPLACE VIEW ocupacoes_por_recorte AS
+SELECT DISTINCT sg_uf, ds_cargo, ds_ocupacao
+FROM candidatos
+WHERE ds_ocupacao IS NOT NULL
+  AND ds_ocupacao <> 'NÃO DIVULGÁVEL'
+  AND ds_ocupacao <> '#NE';
+
 -- Sanity check sugerido depois de rodar:
 -- SELECT COUNT(*) FROM candidatos;
 -- SELECT ds_cargo, COUNT(*) FROM candidatos GROUP BY 1 ORDER BY 2 DESC;
