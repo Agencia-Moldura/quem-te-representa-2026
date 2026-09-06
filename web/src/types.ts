@@ -25,6 +25,7 @@ export interface Candidato {
   foto_url: string | null
   valor_total_bens: number | null
   qtd_bens: number | null
+  grau_instrucao_ordinal: number | null
 }
 
 // Linha da view `coligacoes_executivo`.

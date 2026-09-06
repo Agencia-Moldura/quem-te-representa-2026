@@ -8,11 +8,12 @@ import { RelacionamentoFields } from '../components/RelacionamentoFields'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { candidatosAlinhados } from '../lib/api'
 import { ehChapa } from '../lib/constants'
+import type { Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
 import { nomeExibicao, titulo } from '../lib/format'
 import { useRelacionamento } from '../lib/relacionamento'
 import type { EscolhaExec } from '../lib/relacionamento'
-import { OP_COR_RACA, OP_GENERO_CARDS, OP_GRAU, OP_IDADE, OP_PATRIMONIO } from '../lib/opcoes'
+import { OP_COR_RACA, OP_GENERO_CARDS, OP_GRAU, OP_IDADE, OP_ORDENACAO, OP_PATRIMONIO } from '../lib/opcoes'
 import type { Candidato } from '../types'
 import {
   Alert,
@@ -21,6 +22,7 @@ import {
   Chip,
   ChipGroup,
   OptionCardGroup,
+  SelectField,
   StatusBadge,
   SwatchSelectGroup,
   TagToggleGroup,
@@ -38,6 +40,7 @@ export function CaminhoRelacionamento() {
   const [ocupacoes, setOcupacoes] = useState<string[]>([])
   const [faixasPatrimonio, setFaixasPatrimonio] = useState<string[]>([])
   const [reeleicao, setReeleicao] = useState(false)
+  const [ordenar, setOrdenar] = useState<Ordenacao>('nome')
 
   const [escolhas, setEscolhas] = useState<EscolhaExec[]>([])
   const [resultado, setResultado] = useState<Candidato[] | null>(null)
@@ -69,6 +72,7 @@ export function CaminhoRelacionamento() {
           ocupacoes,
           faixasPatrimonio,
           reeleicao,
+          ordenar,
         }),
       )
     } catch (e) {
@@ -100,6 +104,12 @@ export function CaminhoRelacionamento() {
         />
 
         <div className="filtro-form-acoes">
+          <SelectField
+            label="Ordenar por"
+            value={ordenar}
+            onChange={(v) => setOrdenar(v as Ordenacao)}
+            options={OP_ORDENACAO}
+          />
           <Button type="button" onClick={buscar} disabled={carregando}>
             {carregando ? 'Buscando…' : 'Ver candidatos alinhados'}
           </Button>

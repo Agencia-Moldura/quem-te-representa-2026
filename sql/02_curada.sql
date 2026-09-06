@@ -92,7 +92,19 @@ SELECT
     )::INT                                                        AS idade,
     cf.foto_url,
     p.valor_total_bens,
-    p.qtd_bens
+    p.qtd_bens,
+    -- ordinal da escolaridade p/ ordenar "maior/menor escolaridade".
+    -- NÃO DIVULGÁVEL / #NE / vazio ficam NULL (vão pro fim).
+    CASE c.ds_grau_instrucao
+        WHEN 'ANALFABETO'                     THEN 1
+        WHEN 'LÊ E ESCREVE'                   THEN 2
+        WHEN 'ENSINO FUNDAMENTAL INCOMPLETO'  THEN 3
+        WHEN 'ENSINO FUNDAMENTAL COMPLETO'    THEN 4
+        WHEN 'ENSINO MÉDIO INCOMPLETO'        THEN 5
+        WHEN 'ENSINO MÉDIO COMPLETO'          THEN 6
+        WHEN 'SUPERIOR INCOMPLETO'            THEN 7
+        WHEN 'SUPERIOR COMPLETO'              THEN 8
+    END                                                          AS grau_instrucao_ordinal
 FROM raw_candidatos c
 LEFT JOIN raw_candidatos_complementar cc
     ON cc.sq_candidato = c.sq_candidato

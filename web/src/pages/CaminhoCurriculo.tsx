@@ -39,7 +39,7 @@ export function CaminhoCurriculo() {
   const [ocupacoes, setOcupacoes] = useState<string[]>([])
   const [faixas, setFaixas] = useState<string[]>([])
   const [reeleicao, setReeleicao] = useState(false)
-  const [ordenar, setOrdenar] = useState<Ordenacao>('patrimonio')
+  const [ordenar, setOrdenar] = useState<Ordenacao>('patrimonio_desc')
 
   // mais filtros
   const [faixasIdade, setFaixasIdade] = useState<string[]>([])

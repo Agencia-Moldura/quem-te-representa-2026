@@ -102,13 +102,23 @@ export const FAIXAS_IDADE: FaixaIdade[] = [
   { id: '70-mais', label: '70 anos ou mais', min: 70 },
 ]
 
-export type Ordenacao = 'nome' | 'patrimonio' | 'idade_asc' | 'idade_desc'
+export type Ordenacao =
+  | 'nome'
+  | 'patrimonio_desc'
+  | 'patrimonio_asc'
+  | 'idade_desc'
+  | 'idade_asc'
+  | 'escolaridade_desc'
+  | 'escolaridade_asc'
 
 export const ORDENACOES: { id: Ordenacao; label: string }[] = [
   { id: 'nome', label: 'nome (A–Z)' },
-  { id: 'patrimonio', label: 'maior patrimônio' },
-  { id: 'idade_asc', label: 'mais jovem' },
+  { id: 'patrimonio_desc', label: 'maior patrimônio' },
+  { id: 'patrimonio_asc', label: 'menor patrimônio' },
   { id: 'idade_desc', label: 'mais velho' },
+  { id: 'idade_asc', label: 'mais jovem' },
+  { id: 'escolaridade_desc', label: 'maior escolaridade' },
+  { id: 'escolaridade_asc', label: 'menor escolaridade' },
 ]
 
 // faixas de patrimônio declarado. min inclusivo, max exclusivo.

@@ -19,12 +19,15 @@ export interface ResultadoBusca {
   total: number
 }
 
-// [coluna, ascendente] para cada ordenação
-const ORDER_COL: Record<Ordenacao, [string, boolean]> = {
-  nome: ['nm_urna_candidato', true],
-  patrimonio: ['valor_total_bens', false],
-  idade_asc: ['idade', true],
-  idade_desc: ['idade', false],
+// [coluna, ascendente, nulls primeiro] para cada ordenação
+const ORDER_COL: Record<Ordenacao, [string, boolean, boolean]> = {
+  nome: ['nm_urna_candidato', true, false],
+  patrimonio_desc: ['valor_total_bens', false, false],
+  patrimonio_asc: ['valor_total_bens', true, true], // "sem bens declarados" = menor, vem primeiro
+  idade_desc: ['idade', false, false],
+  idade_asc: ['idade', true, false],
+  escolaridade_desc: ['grau_instrucao_ordinal', false, false],
+  escolaridade_asc: ['grau_instrucao_ordinal', true, false],
 }
 
 const COLS = [
@@ -33,7 +36,7 @@ const COLS = [
   'sq_coligacao', 'nm_coligacao', 'ds_composicao_coligacao',
   'ds_situacao_julgamento', 'ds_genero', 'ds_grau_instrucao', 'ds_estado_civil',
   'ds_cor_raca', 'ds_ocupacao', 'st_reeleicao', 'dt_nascimento', 'idade',
-  'foto_url', 'valor_total_bens', 'qtd_bens',
+  'foto_url', 'valor_total_bens', 'qtd_bens', 'grau_instrucao_ordinal',
 ].join(',')
 
 const LIMITE = 300
@@ -191,9 +194,11 @@ function aplicarFiltros(q: Q, f: FiltroCandidatos): Q {
 
 export async function buscarCandidatos(f: FiltroCandidatos): Promise<ResultadoBusca> {
   const q = aplicarFiltros(baseCandidatos(), f)
-  const [col, asc] = ORDER_COL[f.ordenar ?? 'nome']
+  const [col, asc, nf] = ORDER_COL[f.ordenar ?? 'nome']
   const [{ lista, count }, total] = await Promise.all([
-    runComContagem(q.order(col, { ascending: asc, nullsFirst: false }).limit(LIMITE).returns<Candidato[]>()),
+    runComContagem(
+      q.order(col, { ascending: asc, nullsFirst: nf }).limit(LIMITE).returns<Candidato[]>(),
+    ),
     contarBase(f),
   ])
   return { lista, totalFiltrado: count, total }
@@ -249,13 +254,14 @@ export async function siglasDaCandidatura(c: Candidato): Promise<{ siglas: strin
 }
 
 // candidatos cujo partido está na coligação escolhida (+ demais filtros). Lista
-// plana, sem contagem — o caminho 3 agrupa por cargo na exibição.
+// plana, sem contagem — o caminho 3 agrupa por cargo na exibição, então a
+// ordenação escolhida vale DENTRO de cada cargo.
 export function candidatosAlinhados(f: FiltroCandidatos): Promise<Candidato[]> {
   if (!f.partidos?.length) return Promise.resolve([])
-  const q = aplicarFiltros(baseCandidatos(), f)
-  return run<Candidato[]>(
-    q.order('ds_cargo').order('nm_urna_candidato').limit(600).returns<Candidato[]>(),
-  )
+  let q = aplicarFiltros(baseCandidatos(), f).order('ds_cargo')
+  const [col, asc, nf] = ORDER_COL[f.ordenar ?? 'nome']
+  q = q.order(col, { ascending: asc, nullsFirst: nf })
+  return run<Candidato[]>(q.limit(600).returns<Candidato[]>())
 }
 
 // --- cabeças de chapa (governador / presidente) por partido, p/ mostrar no card ---

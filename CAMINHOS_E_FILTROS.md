@@ -99,8 +99,11 @@ Dona de casa · Estudante / estagiário · Aposentado (não servidor).
 `aguardando julgamento` (`AGUARDANDO` ou `PENDENTE`).
 Renúncia e registro indeferido já ficam fora da base.
 
-#### Ordenar por — `ordenacao`
-`nome (A–Z)` · `maior patrimônio` · `mais jovem` · `mais velho`
+#### Ordenar por — `ordenacao` · **nos 3 caminhos**
+`nome (A–Z)` · `maior patrimônio` · `menor patrimônio` · `mais velho` · `mais jovem` ·
+`maior escolaridade` · `menor escolaridade`
+(escolaridade ordena pela coluna `grau_instrucao_ordinal` da view; no Caminho 3
+vale dentro de cada cargo, já que o resultado é agrupado.)
 
 #### Presidência — `select_unico` — `— nenhuma —` + 13 candidaturas a presidente
 #### Governo de {UF} — `select_unico` — `— nenhuma —` + governadores da UF
@@ -130,12 +133,13 @@ idade · Escolaridade · Gênero · Cor/raça · Situação da candidatura
 o card ganha a etiqueta de aliado.
 
 ### Caminho 3 · Relacionamento político
-**Principais:** Presidência · Governo de {UF} (pelo menos uma) · Ver candidatos alinhados
+**Principais:** Presidência · Governo de {UF} (pelo menos uma) · Ordenar por ·
+Ver candidatos alinhados
 **Ver mais filtros de Relacionamento:** **Profissão** · **Faixa de patrimônio** ·
 Faixa de idade · Escolaridade · Gênero · Cor/raça · **Concorrendo à reeleição**
 → dá para somar Currículo (2+3) e Perfil.
-Resultado **agrupado por cargo**; cada card com a etiqueta de aliado. Sem "Ordenar
-por" nem "Situação".
+Resultado **agrupado por cargo** (a ordenação vale dentro de cada grupo); cada card
+com a etiqueta de aliado. Sem "Situação".
 
 ---
 
@@ -156,4 +160,4 @@ por" nem "Situação".
 | Situação da candidatura | select_unico | mais filtros | mais filtros | — |
 | Presidência | select_unico | — | mais filtros | principal |
 | Governo de {UF} | select_unico | — | mais filtros | principal |
-| Ordenar por | ordenacao | principal | principal | — |
+| Ordenar por | ordenacao | principal | principal | principal |
