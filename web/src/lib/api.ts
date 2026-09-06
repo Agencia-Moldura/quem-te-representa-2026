@@ -87,13 +87,15 @@ export async function ocupacoesDisponiveis(ctx: Contexto): Promise<string[]> {
   return [...new Set(rows.map((r) => r.ds_ocupacao))]
 }
 
-// total do universo (cargo + estado), antes dos filtros do caminho — p/ "N de TOTAL"
+// total do universo (cargo + estado), antes dos filtros do caminho — p/ "N de TOTAL".
+// GET com limit(1) em vez de HEAD: o count vem no header Content-Range do mesmo
+// jeito, e evita o net::ERR_ABORTED que o Chrome loga em respostas HEAD.
 async function contarBase(ctx: Contexto): Promise<number> {
-  let q = supabase.from('candidatos').select('sq_candidato', { count: 'exact', head: true })
+  let q = supabase.from('candidatos').select('sq_candidato', { count: 'exact' })
   for (const cargo of CARGOS_OCULTOS) q = q.neq('ds_cargo', cargo)
   if (ctx.uf) q = q.eq('sg_uf', ctx.uf)
   q = aplicarCargo(q, ctx.cargo)
-  const { count, error } = await q
+  const { count, error } = await q.limit(1)
   if (error) throw new Error(error.message)
   return count ?? 0
 }

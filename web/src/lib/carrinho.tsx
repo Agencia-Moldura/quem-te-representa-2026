@@ -50,6 +50,9 @@ function sessionId(): string {
 export function CarrinhoProvider({ children }: { children: ReactNode }) {
   const [itens, setItens] = useState<ItemLista[]>(ler)
   const sid = useRef<string>(sessionId())
+  // sq já registrados na base nesta sessão — evita insert duplicado (409),
+  // inclusive com o duplo-render do StrictMode em dev.
+  const logados = useRef<Set<string>>(new Set())
 
   const salvar = useCallback((next: ItemLista[]) => {
     setItens(next)
@@ -62,36 +65,41 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
 
   const adicionar = useCallback(
     (c: Candidato) => {
+      const item: ItemLista = {
+        sq: c.sq_candidato,
+        nome: c.nm_urna_candidato || c.nm_candidato,
+        nr: c.nr_candidato,
+        partido: c.sg_partido,
+        cargo: c.ds_cargo,
+        uf: c.sg_uf,
+        foto_url: c.foto_url,
+      }
       setItens((prev) => {
-        if (prev.some((i) => i.sq === c.sq_candidato)) return prev
-        const item: ItemLista = {
-          sq: c.sq_candidato,
-          nome: c.nm_urna_candidato || c.nm_candidato,
-          nr: c.nr_candidato,
-          partido: c.sg_partido,
-          cargo: c.ds_cargo,
-          uf: c.sg_uf,
-          foto_url: c.foto_url,
-        }
+        if (prev.some((i) => i.sq === item.sq)) return prev
         const next = [...prev, item]
         try {
           sessionStorage.setItem(CHAVE, JSON.stringify(next))
         } catch {
           /* ignore */
         }
-        // registra na base (log append-only; não bloqueia a UI)
+        return next
+      })
+
+      // registra na base (log append-only; não bloqueia a UI). Fora do updater
+      // do setState para não rodar duas vezes no StrictMode.
+      if (!logados.current.has(item.sq)) {
+        logados.current.add(item.sq)
         void supabase
           .from('lista_sessao')
           .insert({
             session_id: sid.current,
-            sq_candidato: c.sq_candidato,
-            uf: c.sg_uf,
-            cargo: c.ds_cargo,
+            sq_candidato: item.sq,
+            uf: item.uf,
+            cargo: item.cargo,
             nm_urna: item.nome,
           })
           .then(() => {}, () => {})
-        return next
-      })
+      }
     },
     [],
   )
