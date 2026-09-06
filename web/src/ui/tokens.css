@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lato:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ==========================================================================
+   QTR.UI — tokens de design
+   Traduzido do "QTR UI Design System" (Claude Design) para variáveis CSS.
+   Namespace --qtr-* para não colidir com o style-guide.css atual enquanto
+   a migração não é aplicada tela a tela. Ver web/src/ui/README.md.
+   ========================================================================== */
+
+:root {
+  /* ---- Violeta (escala principal) ---- */
+  --qtr-violet-900: #4C1D95; /* títulos fortes, botão primário escuro, chip sólido */
+  --qtr-violet-700: #6D28D9; /* primary — links, ícones, número de urna, foco */
+  --qtr-violet-600: #7C3AED; /* preenchimento do botão primário */
+  --qtr-violet-400: #A78BFA; /* detalhes secundários */
+  --qtr-violet-300: #C7B3F5; /* círculos decorativos médios */
+  --qtr-violet-200: #D9C6FF; /* círculo decorativo grande */
+  --qtr-violet-100: #EDE4FF; /* surface lavanda — selecionado, tag ativa */
+  --qtr-violet-50:  #F5F0FF; /* painel decorativo bem claro */
+  --qtr-lilac-chip: #E4D8FF; /* fundo de chip removível */
+
+  /* ---- Lima (accent) ---- */
+  --qtr-lime:    #C4F165; /* accent — botão destaque, selo "QTR Cast" */
+  --qtr-lime-50: #EBFACB; /* fundo de alerta de sucesso */
+
+  /* ---- Tinta / papel / neutros ---- */
+  --qtr-ink:       #1B1330; /* texto principal, borda de select */
+  --qtr-ink-700:   #3B2E5A; /* texto corrido */
+  --qtr-ink-600:   #574A75; /* texto secundário */
+  --qtr-ink-400:   #8877AB; /* legendas, rótulos mono */
+  --qtr-paper:     #F7F5FB; /* fundo da página */
+  --qtr-white:     #FFFFFF; /* fundo de card */
+  --qtr-border:    #E5DFF2; /* borda clara de card/input */
+  --qtr-field-bg:  #FAF8FF; /* preenchimento de input de texto */
+  --qtr-radio-off: #B4A5D6; /* contorno de radio/checkbox não marcado */
+  --qtr-disabled:  #D6CFE6; /* botão/estado desabilitado, linha do stepper */
+
+  /* ---- Status ---- */
+  --qtr-warn-bg: #FEF3C7;  --qtr-warn-fg: #92400E;
+  --qtr-neutral-bg: #EEECF2; --qtr-neutral-fg: #3B3746;
+  --qtr-success-bg: #EBFACB; --qtr-success-fg: #3F5B0E;
+  --qtr-info-bg: #EDE4FF;  --qtr-info-fg: #4C1D95;
+  --qtr-danger-bg: #FDECEC; --qtr-danger-fg: #A12626;
+
+  /* ---- Tipografia ---- */
+  --qtr-font-display: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --qtr-font-body: 'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --qtr-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --qtr-text-display: 56px;  --qtr-lh-display: 1.05;  /* Poppins 800, -0.02em */
+  --qtr-text-h1: 36px;       --qtr-lh-h1: 1.15;       /* Poppins 700, -0.015em */
+  --qtr-text-h2: 24px;       --qtr-lh-h2: 1.25;       /* Poppins 700 */
+  --qtr-text-body: 16px;     --qtr-lh-body: 1.6;      /* Lato 400 */
+  --qtr-text-sm: 14px;       --qtr-lh-sm: 1.45;       /* rótulos, botões, controles */
+  --qtr-text-xs: 13px;                                /* small, chips */
+  --qtr-text-eyebrow: 12px;                           /* Poppins 600 uppercase 0.08em */
+
+  /* ---- Espaçamento (escala 4px) ---- */
+  --qtr-space-1: 4px;
+  --qtr-space-2: 8px;
+  --qtr-space-3: 12px;
+  --qtr-space-4: 16px;
+  --qtr-space-5: 20px;
+  --qtr-space-6: 24px;
+  --qtr-space-8: 32px;
+  --qtr-space-10: 40px;
+
+  /* ---- Raios ---- */
+  --qtr-radius-sm: 10px;  /* inputs, selects */
+  --qtr-radius-md: 12px;  /* option cards, alertas, tags-cartão */
+  --qtr-radius-lg: 20px;  /* cards */
+  --qtr-radius-xl: 24px;  /* painéis grandes */
+  --qtr-radius-pill: 999px;
+
+  /* ---- Sombra ---- */
+  --qtr-shadow-sm: 0 1px 3px rgba(76, 29, 149, 0.06);
+  --qtr-shadow-md: 0 4px 20px rgba(76, 29, 149, 0.06);
+  --qtr-shadow-btn: 0 6px 16px rgba(124, 58, 237, 0.28);
+  --qtr-ring: 0 0 0 3px var(--qtr-violet-100);
+
+  /* ---- Transição ---- */
+  --qtr-transition: 150ms ease;
+}

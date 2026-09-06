@@ -1,0 +1,589 @@
+/* ==========================================================================
+   QTR.UI — componentes
+   Classes com prefixo .qtr-*. Cada bloco corresponde a uma seção do
+   "QTR UI Design System". Consome os tokens de tokens.css.
+   ========================================================================== */
+
+.qtr-scope {
+  font-family: var(--qtr-font-body);
+  color: var(--qtr-ink);
+  font-size: var(--qtr-text-body);
+  line-height: var(--qtr-lh-body);
+}
+.qtr-scope *,
+.qtr-scope *::before,
+.qtr-scope *::after { box-sizing: border-box; }
+
+/* ==========================================================================
+   01 — Tipografia utilitária
+   ========================================================================== */
+.qtr-display {
+  font-family: var(--qtr-font-display);
+  font-size: var(--qtr-text-display);
+  line-height: var(--qtr-lh-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.qtr-h1 {
+  font-family: var(--qtr-font-display);
+  font-size: var(--qtr-text-h1);
+  line-height: var(--qtr-lh-h1);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.qtr-h2 {
+  font-family: var(--qtr-font-display);
+  font-size: var(--qtr-text-h2);
+  line-height: var(--qtr-lh-h2);
+  font-weight: 700;
+  margin: 0;
+}
+.qtr-body { font-size: var(--qtr-text-body); line-height: var(--qtr-lh-body); color: var(--qtr-ink-700); }
+.qtr-small { font-size: var(--qtr-text-xs); line-height: 1.45; font-weight: 500; color: var(--qtr-ink-600); }
+.qtr-eyebrow {
+  font-family: var(--qtr-font-display);
+  font-size: var(--qtr-text-eyebrow);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--qtr-violet-700);
+}
+.qtr-mono { font-family: var(--qtr-font-mono); font-size: 12px; color: var(--qtr-ink-400); }
+.qtr-linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  color: var(--qtr-violet-700);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.qtr-linklike:hover { color: var(--qtr-violet-900); }
+
+/* ==========================================================================
+   02 — Botões
+   ========================================================================== */
+.qtr-btn {
+  --_pad-y: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--qtr-space-2);
+  padding: var(--_pad-y) 28px;
+  border: 0;
+  border-radius: var(--qtr-radius-pill);
+  font-family: var(--qtr-font-body);
+  font-size: var(--qtr-text-sm);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--qtr-transition), border-color var(--qtr-transition),
+    color var(--qtr-transition), transform var(--qtr-transition), box-shadow var(--qtr-transition);
+}
+.qtr-btn:active { transform: translateY(1px); }
+.qtr-btn:focus-visible { outline: none; box-shadow: var(--qtr-ring); }
+
+.qtr-btn--sm { --_pad-y: 10px; padding: 10px 18px; font-size: var(--qtr-text-xs); }
+.qtr-btn--block { display: flex; width: 100%; }
+
+.qtr-btn--primary {
+  background: var(--qtr-violet-600);
+  color: #fff;
+  box-shadow: var(--qtr-shadow-btn);
+}
+.qtr-btn--primary:hover { background: var(--qtr-violet-700); }
+
+.qtr-btn--primary-dark { background: var(--qtr-violet-900); color: #fff; }
+.qtr-btn--primary-dark:hover { background: #3B1580; }
+
+.qtr-btn--outline {
+  background: transparent;
+  color: var(--qtr-violet-700);
+  border: 1.5px solid var(--qtr-violet-700);
+  padding: calc(var(--_pad-y) - 1.5px) 28px;
+}
+.qtr-btn--outline:hover { background: var(--qtr-violet-100); }
+
+.qtr-btn--outline-ink {
+  background: #fff;
+  color: var(--qtr-ink);
+  border: 1.5px solid var(--qtr-ink);
+  padding: calc(var(--_pad-y) - 1.5px) 28px;
+}
+.qtr-btn--outline-ink:hover { background: var(--qtr-paper); }
+
+.qtr-btn--accent { background: var(--qtr-lime); color: var(--qtr-ink); }
+.qtr-btn--accent:hover { background: #B6E84D; }
+
+.qtr-btn--ghost {
+  background: transparent;
+  color: var(--qtr-violet-700);
+  padding: 10px 8px;
+  box-shadow: none;
+}
+.qtr-btn--ghost:hover { color: var(--qtr-violet-900); }
+
+.qtr-btn:disabled,
+.qtr-btn[aria-disabled='true'] {
+  background: var(--qtr-disabled);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+.qtr-btn--outline:disabled,
+.qtr-btn--outline-ink:disabled,
+.qtr-btn--ghost:disabled { background: transparent; color: var(--qtr-disabled); border-color: currentColor; }
+
+.qtr-btn-icon { display: inline-flex; flex: none; }
+
+/* Paginação */
+.qtr-pagination { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qtr-page {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--qtr-radius-pill);
+  background: transparent;
+  color: var(--qtr-ink);
+  font-family: var(--qtr-font-body);
+  font-size: var(--qtr-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--qtr-transition), color var(--qtr-transition);
+}
+.qtr-page:hover { background: var(--qtr-violet-100); }
+.qtr-page.is-current { background: var(--qtr-ink); color: #fff; font-weight: 600; }
+.qtr-page--arrow { display: inline-flex; align-items: center; justify-content: center; color: var(--qtr-ink); }
+.qtr-page:disabled { color: var(--qtr-disabled); cursor: not-allowed; background: transparent; }
+
+/* ==========================================================================
+   03 — Campos de formulário
+   ========================================================================== */
+.qtr-field { display: block; margin-bottom: var(--qtr-space-5); }
+.qtr-field:last-child { margin-bottom: 0; }
+.qtr-field--reset { border: 0; margin: 0 0 var(--qtr-space-5); padding: 0; min-width: 0; }
+.qtr-field--reset > .qtr-label { padding: 0; }
+.qtr-label {
+  display: block;
+  font-size: var(--qtr-text-sm);
+  font-weight: 500;
+  color: var(--qtr-ink);
+  margin-bottom: var(--qtr-space-2);
+}
+.qtr-label-hint { font-weight: 400; color: var(--qtr-ink-400); }
+.qtr-field-help { margin: var(--qtr-space-2) 0 0; font-size: 12px; color: var(--qtr-ink-400); }
+.qtr-field-error { margin: var(--qtr-space-2) 0 0; font-size: 12px; color: var(--qtr-danger-fg); }
+
+.qtr-input {
+  width: 100%;
+  border: 1px solid var(--qtr-border);
+  border-radius: var(--qtr-radius-sm);
+  padding: 14px 18px;
+  font-family: var(--qtr-font-body);
+  font-size: var(--qtr-text-sm);
+  color: var(--qtr-ink);
+  background: var(--qtr-field-bg);
+  transition: border-color var(--qtr-transition), box-shadow var(--qtr-transition);
+}
+.qtr-input::placeholder { color: var(--qtr-ink-400); }
+.qtr-input:hover { border-color: var(--qtr-radio-off); }
+.qtr-input:focus { outline: none; border-color: var(--qtr-violet-700); box-shadow: var(--qtr-ring); }
+.qtr-input[aria-invalid='true'] { border-color: var(--qtr-danger-fg); }
+
+/* Select — borda tinta, chevron desenhado; roxo quando preenchido */
+.qtr-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--qtr-ink);
+  border-radius: var(--qtr-radius-sm);
+  padding: 14px 44px 14px 18px;
+  font-family: var(--qtr-font-body);
+  font-size: var(--qtr-text-sm);
+  color: var(--qtr-ink);
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 18px 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231B1330' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  cursor: pointer;
+  transition: border-color var(--qtr-transition), box-shadow var(--qtr-transition);
+}
+.qtr-select:focus { outline: none; border-color: var(--qtr-violet-700); box-shadow: var(--qtr-ring); }
+.qtr-select.is-filled {
+  border: 1.5px solid var(--qtr-violet-700);
+  padding: 13.5px 43.5px 13.5px 17.5px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236D28D9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+.qtr-select:disabled { background-color: var(--qtr-paper); color: var(--qtr-ink-400); cursor: not-allowed; }
+
+/* Checkbox — quadrado arredondado, roxo com "check" branco quando marcado */
+.qtr-check {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--qtr-space-3);
+  font-size: var(--qtr-text-sm);
+  color: var(--qtr-ink);
+  cursor: pointer;
+  padding: var(--qtr-space-1) 0;
+}
+.qtr-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.qtr-check-box {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--qtr-radio-off);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--qtr-transition), border-color var(--qtr-transition);
+}
+.qtr-check-box svg { opacity: 0; transition: opacity var(--qtr-transition); }
+.qtr-check input:checked + .qtr-check-box {
+  background: var(--qtr-violet-700);
+  border-color: var(--qtr-violet-700);
+}
+.qtr-check input:checked + .qtr-check-box svg { opacity: 1; }
+.qtr-check input:focus-visible + .qtr-check-box { box-shadow: var(--qtr-ring); }
+.qtr-check input:disabled + .qtr-check-box { border-color: var(--qtr-disabled); background: var(--qtr-paper); }
+.qtr-check--disabled { color: var(--qtr-ink-400); cursor: not-allowed; }
+
+/* Radio — anel que "engorda" para dentro quando marcado */
+.qtr-radio-group { display: flex; flex-direction: column; }
+.qtr-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qtr-space-3);
+  padding: var(--qtr-space-2) 0;
+  font-size: var(--qtr-text-sm);
+  color: var(--qtr-ink);
+  cursor: pointer;
+}
+.qtr-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
+.qtr-radio-dot {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--qtr-radius-pill);
+  border: 1.5px solid var(--qtr-radio-off);
+  background: #fff;
+  transition: border-width var(--qtr-transition), border-color var(--qtr-transition);
+}
+.qtr-radio input:checked + .qtr-radio-dot { border: 6px solid var(--qtr-violet-700); }
+.qtr-radio input:focus-visible + .qtr-radio-dot { box-shadow: var(--qtr-ring); }
+.qtr-radio input:disabled + .qtr-radio-dot { border-color: var(--qtr-disabled); }
+.qtr-radio--disabled { color: var(--qtr-ink-400); cursor: not-allowed; }
+
+/* ==========================================================================
+   04 — Seleção visual (cartões, tags, swatches)
+   ========================================================================== */
+.qtr-optcards { display: flex; gap: var(--qtr-space-3); flex-wrap: wrap; }
+
+.qtr-optcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 128px;
+  padding: 20px 12px;
+  border: 1px solid var(--qtr-border);
+  border-radius: var(--qtr-radius-md);
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--qtr-transition), box-shadow var(--qtr-transition);
+}
+.qtr-optcard:hover { border-color: var(--qtr-violet-400); }
+.qtr-optcard.is-selected {
+  border: 1.5px solid var(--qtr-violet-700);
+  box-shadow: var(--qtr-ring);
+}
+.qtr-optcard:focus-visible { outline: none; box-shadow: var(--qtr-ring); }
+.qtr-optcard-icon { width: 32px; height: 32px; margin-bottom: 6px; color: var(--qtr-violet-700); }
+.qtr-optcard-label { font-size: var(--qtr-text-sm); font-weight: 500; color: var(--qtr-ink); }
+.qtr-optcard.is-selected .qtr-optcard-label { color: var(--qtr-violet-900); font-weight: 600; }
+.qtr-optcard-sub { font-size: 12px; color: var(--qtr-ink-400); }
+.qtr-optcard.is-selected .qtr-optcard-sub { color: var(--qtr-violet-700); }
+
+.qtr-optcard--plain { min-width: 128px; width: auto; padding: 16px 20px; }
+
+/* Tag toggle (pautas, profissão, escolaridade — seleção múltipla por união) */
+.qtr-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.qtr-tag {
+  border: 1px solid var(--qtr-border);
+  border-radius: var(--qtr-radius-pill);
+  padding: 10px 20px;
+  background: #fff;
+  color: var(--qtr-ink);
+  font-family: inherit;
+  font-size: var(--qtr-text-sm);
+  cursor: pointer;
+  transition: border-color var(--qtr-transition), background var(--qtr-transition), color var(--qtr-transition);
+}
+.qtr-tag:hover { border-color: var(--qtr-violet-400); }
+.qtr-tag.is-on {
+  background: var(--qtr-violet-100);
+  border: 1.5px solid var(--qtr-violet-700);
+  padding: 8.5px 20px;
+  font-weight: 600;
+  color: var(--qtr-violet-900);
+}
+.qtr-tag:focus-visible { outline: none; box-shadow: var(--qtr-ring); }
+.qtr-tag:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Swatch select (cor/raça) */
+.qtr-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.qtr-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qtr-space-2);
+  border: 1px solid var(--qtr-border);
+  border-radius: var(--qtr-radius-pill);
+  padding: 6px 14px 6px 8px;
+  background: #fff;
+  font-family: inherit;
+  font-size: var(--qtr-text-xs);
+  font-weight: 500;
+  color: var(--qtr-ink);
+  cursor: pointer;
+  transition: border-color var(--qtr-transition), background var(--qtr-transition);
+}
+.qtr-swatch:hover { border-color: var(--qtr-violet-400); }
+.qtr-swatch.is-on {
+  background: var(--qtr-violet-100);
+  border: 1.5px solid var(--qtr-violet-700);
+  padding: 4.5px 14px 4.5px 6.5px;
+  font-weight: 600;
+  color: var(--qtr-violet-900);
+}
+.qtr-swatch:focus-visible { outline: none; box-shadow: var(--qtr-ring); }
+.qtr-swatch-dot { width: 20px; height: 20px; border-radius: var(--qtr-radius-pill); flex: none; border: 1px solid rgba(0, 0, 0, 0.06); }
+
+/* ==========================================================================
+   05 — Chips e etiquetas
+   ========================================================================== */
+.qtr-chips { display: flex; flex-wrap: wrap; gap: var(--qtr-space-2); }
+
+.qtr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--qtr-lilac-chip);
+  color: var(--qtr-violet-900);
+  border: 0;
+  border-radius: var(--qtr-radius-pill);
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: var(--qtr-text-xs);
+  font-weight: 500;
+}
+.qtr-chip--removable { padding: 6px 10px 6px 14px; }
+.qtr-chip-x {
+  display: inline-flex;
+  border: 0;
+  background: transparent;
+  padding: 2px;
+  margin: -2px -4px -2px 0;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--qtr-radius-pill);
+}
+.qtr-chip-x:hover { background: rgba(76, 29, 149, 0.12); }
+.qtr-chip--media { background: rgba(255, 255, 255, 0.92); color: var(--qtr-violet-900); }
+.qtr-chip--outline { background: #fff; border: 1px solid var(--qtr-border); color: var(--qtr-ink); font-weight: 500; }
+
+/* Status */
+.qtr-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--qtr-radius-pill);
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+.qtr-status-dot { width: 6px; height: 6px; border-radius: var(--qtr-radius-pill); background: currentColor; flex: none; }
+.qtr-status--accent { background: var(--qtr-lime); color: var(--qtr-ink); }
+.qtr-status--solid { background: var(--qtr-violet-900); color: #fff; }
+.qtr-status--warn { background: var(--qtr-warn-bg); color: var(--qtr-warn-fg); }
+.qtr-status--info { background: var(--qtr-info-bg); color: var(--qtr-info-fg); }
+.qtr-status--success { background: var(--qtr-success-bg); color: var(--qtr-success-fg); }
+.qtr-status--neutral { background: var(--qtr-neutral-bg); color: var(--qtr-neutral-fg); }
+
+/* ==========================================================================
+   06 — Navegação de fluxo (stepper + breadcrumb)
+   ========================================================================== */
+.qtr-stepper {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  text-align: center;
+  position: relative;
+  padding-bottom: var(--qtr-space-1);
+}
+.qtr-stepper::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 5px;
+  height: 1px;
+  background: var(--qtr-disabled);
+}
+.qtr-stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  cursor: default;
+}
+.qtr-stepper-step[data-clickable='true'] { cursor: pointer; }
+.qtr-stepper-label { font-size: var(--qtr-text-sm); font-weight: 500; color: var(--qtr-ink-600); }
+.qtr-stepper-step.is-upcoming .qtr-stepper-label { color: var(--qtr-ink); }
+.qtr-stepper-step.is-active .qtr-stepper-label,
+.qtr-stepper-step.is-complete .qtr-stepper-label { color: var(--qtr-violet-700); font-weight: 600; }
+.qtr-stepper-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--qtr-radius-pill);
+  background: #fff;
+  border: 2px solid var(--qtr-radio-off);
+  box-sizing: border-box;
+}
+.qtr-stepper-step.is-complete .qtr-stepper-dot { background: var(--qtr-violet-700); border-color: var(--qtr-violet-700); }
+/* passo atual: bolinha cheia + circunferência em volta */
+.qtr-stepper-step.is-active .qtr-stepper-dot {
+  background: var(--qtr-violet-700);
+  border-color: var(--qtr-violet-700);
+  box-shadow: 0 0 0 2px var(--qtr-paper), 0 0 0 4px var(--qtr-violet-700);
+}
+.qtr-stepper-opt { display: block; font-size: 11px; font-weight: 400; color: var(--qtr-ink-400); }
+
+.qtr-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: var(--qtr-text-sm);
+}
+.qtr-breadcrumb a { color: var(--qtr-violet-700); font-weight: 500; text-decoration: none; }
+.qtr-breadcrumb a:hover { color: var(--qtr-violet-900); }
+.qtr-breadcrumb-sep { display: inline-flex; color: var(--qtr-ink-400); }
+.qtr-breadcrumb-current { color: var(--qtr-ink); }
+
+/* ==========================================================================
+   07 — Cards / painéis
+   ========================================================================== */
+.qtr-card {
+  background: #fff;
+  border-radius: var(--qtr-radius-lg);
+  box-shadow: var(--qtr-shadow-md);
+  padding: 28px;
+}
+.qtr-card--flat { box-shadow: var(--qtr-shadow-sm); }
+.qtr-card--pad-lg { padding: 40px 48px; }
+.qtr-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--qtr-radius-pill);
+  background: var(--qtr-violet-100);
+  color: var(--qtr-violet-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--qtr-space-5);
+}
+.qtr-card-title { font-family: var(--qtr-font-display); font-weight: 700; font-size: 18px; margin: 0 0 var(--qtr-space-2); }
+.qtr-card-text { font-size: var(--qtr-text-sm); color: var(--qtr-ink-600); line-height: 1.5; margin: 0; }
+
+.qtr-panel {
+  background: var(--qtr-violet-50);
+  border-radius: var(--qtr-radius-xl);
+  padding: 40px 48px;
+}
+
+/* ==========================================================================
+   08 — Alertas
+   ========================================================================== */
+.qtr-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-radius: var(--qtr-radius-md);
+  padding: 18px 22px;
+  font-size: var(--qtr-text-sm);
+  line-height: 1.5;
+}
+.qtr-alert-icon { flex: none; margin-top: 1px; }
+.qtr-alert--neutral { background: var(--qtr-neutral-bg); color: var(--qtr-neutral-fg); }
+.qtr-alert--info { background: var(--qtr-info-bg); color: var(--qtr-info-fg); }
+.qtr-alert--success { background: var(--qtr-success-bg); color: var(--qtr-success-fg); }
+.qtr-alert--warn { background: var(--qtr-warn-bg); color: var(--qtr-warn-fg); }
+
+/* ==========================================================================
+   09 — Motivo decorativo (círculos sobrepostos)
+   ========================================================================== */
+.qtr-motif { position: relative; overflow: hidden; border-radius: var(--qtr-radius-xl); background: var(--qtr-violet-50); }
+.qtr-motif-circle { position: absolute; border-radius: var(--qtr-radius-pill); }
+
+/* ==========================================================================
+   Showcase (/design) — só a página de demonstração usa estas classes
+   ========================================================================== */
+.qtr-doc { max-width: 1240px; margin: 0 auto; padding: 64px 40px 96px; background: var(--qtr-paper); min-height: 100vh; }
+.qtr-doc-header { padding-bottom: 32px; border-bottom: 1px solid var(--qtr-border); margin-bottom: 56px; }
+.qtr-doc-section { margin-bottom: 88px; }
+.qtr-doc-section > h2 {
+  font-family: var(--qtr-font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+.qtr-doc-section > h2 .qtr-mono { font-size: 12px; }
+.qtr-doc-row { display: grid; grid-template-columns: 200px 1fr; gap: 28px 32px; align-items: center; }
+.qtr-doc-row--top { align-items: start; }
+.qtr-doc-stack { display: flex; flex-direction: column; gap: 12px; }
+.qtr-doc-inline { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.qtr-doc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.qtr-doc-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.qtr-swatchcard { border-radius: var(--qtr-radius-lg); overflow: hidden; background: #fff; box-shadow: var(--qtr-shadow-sm); }
+.qtr-swatchcard-fill { height: 120px; }
+.qtr-swatchcard-meta { padding: 14px 18px; }
+.qtr-swatchcard-meta b { font-size: 14px; font-weight: 600; display: block; }
+@media (max-width: 860px) {
+  .qtr-doc { padding: 40px 20px 72px; }
+  .qtr-doc-row { grid-template-columns: 1fr; gap: 12px; }
+  .qtr-doc-grid2, .qtr-doc-grid3 { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   Responsivo
+   ========================================================================== */
+@media (max-width: 640px) {
+  .qtr-display { font-size: 40px; }
+  .qtr-h1 { font-size: 28px; }
+  .qtr-card--pad-lg,
+  .qtr-panel { padding: 28px 22px; }
+  .qtr-stepper-label { font-size: 12px; }
+  .qtr-stepper-opt { display: none; }
+}

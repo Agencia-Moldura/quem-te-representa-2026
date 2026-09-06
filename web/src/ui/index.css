@@ -1,0 +1,4 @@
+/* QTR.UI — ponto único de import dos estilos do design system.
+   import './ui/index.css' já traz tokens + componentes. */
+@import './tokens.css';
+@import './ui.css';
