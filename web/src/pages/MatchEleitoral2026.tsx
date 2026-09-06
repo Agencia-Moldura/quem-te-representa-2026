@@ -81,7 +81,7 @@ export function MatchEleitoral2026() {
   if (!uf) {
     return (
       <section>
-        <p className="qtr-eyebrow">Passo 1 de 4</p>
+        <p className="qtr-eyebrow">Passo 1 de 3</p>
         <h1 className="page-titulo">Qual é o seu estado?</h1>
         <p className="page-lead">Ele vale para os três caminhos de busca.</p>
         <div className="uf-grid">
@@ -99,7 +99,7 @@ export function MatchEleitoral2026() {
   // ---- passos 2 e 3: cargo (barra do topo) + caminho ----
   return (
     <section>
-      <p className="qtr-eyebrow">Passo 3 de 4</p>
+      <p className="qtr-eyebrow">Passo 2 de 3</p>
       <h1 className="page-titulo">Como você quer encontrar um candidato?</h1>
       <p className="page-lead">
         Você está vendo <strong>{rotuloCargo(cargo)}</strong> em <strong>{uf}</strong>{' '}
