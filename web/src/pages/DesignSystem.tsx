@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import '../ui/index.css'
 import {
   Alert,
   Breadcrumb,

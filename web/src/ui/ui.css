@@ -421,6 +421,7 @@
 .qtr-status--info { background: var(--qtr-info-bg); color: var(--qtr-info-fg); }
 .qtr-status--success { background: var(--qtr-success-bg); color: var(--qtr-success-fg); }
 .qtr-status--neutral { background: var(--qtr-neutral-bg); color: var(--qtr-neutral-fg); }
+.qtr-status--danger { background: var(--qtr-danger-bg); color: var(--qtr-danger-fg); }
 
 /* ==========================================================================
    06 — Navegação de fluxo (stepper + breadcrumb)

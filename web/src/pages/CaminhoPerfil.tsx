@@ -2,26 +2,29 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
-import { CheckGroup, Field, Select } from '../components/Campos'
 import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarCandidatos } from '../lib/api'
 import type { FiltroCandidatos, ResultadoBusca } from '../lib/api'
-import {
-  CORES_RACA,
-  ESTADOS_CIVIS,
-  FAIXAS_IDADE,
-  GENEROS,
-  GRAUS_INSTRUCAO,
-  ORDENACOES,
-  SITUACOES,
-} from '../lib/constants'
 import type { Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
-
-const OP_IDADE = FAIXAS_IDADE.map((f) => ({ value: f.id, label: f.label }))
-const OP_GRAU = GRAUS_INSTRUCAO.map(([v, l]) => ({ value: v, label: l }))
-const OP_CIVIL = ESTADOS_CIVIS.map(([v, l]) => ({ value: v, label: l }))
+import {
+  OP_CIVIL,
+  OP_COR_RACA,
+  OP_GENERO_CARDS,
+  OP_GRAU,
+  OP_IDADE,
+  OP_ORDENACAO,
+  OP_SITUACAO,
+} from '../lib/opcoes'
+import {
+  Alert,
+  Button,
+  OptionCardGroup,
+  SelectField,
+  SwatchSelectGroup,
+  TagToggleGroup,
+} from '../ui'
 
 export function CaminhoPerfil() {
   const { uf, cargo } = useContexto()
@@ -75,68 +78,65 @@ export function CaminhoPerfil() {
         sub="Idade, gênero e cor/raça autodeclarados no registro de candidatura."
       />
 
-      <form className="filtros filtros-checks" onSubmit={buscar}>
-        <CheckGroup
+      <form className="qtr-card filtro-form" onSubmit={buscar}>
+        <TagToggleGroup
           label="Faixa de idade"
-          hint="(qualquer uma das marcadas)"
-          options={OP_IDADE}
-          selected={faixasIdade}
+          hint="marque quantas quiser"
+          value={faixasIdade}
           onChange={setFaixasIdade}
+          options={OP_IDADE}
+        />
+        <OptionCardGroup
+          label="Gênero"
+          value={genero}
+          onChange={(v) => setGenero(v === genero ? '' : v)}
+          options={OP_GENERO_CARDS}
+        />
+        <SwatchSelectGroup
+          label="Cor/raça"
+          multiple={false}
+          value={corRaca ? [corRaca] : []}
+          onChange={(a) => setCorRaca(a[0] ?? '')}
+          options={OP_COR_RACA}
         />
 
-        <div className="filtros-rodape">
-          <Field label="Gênero">
-            <Select value={genero} onChange={setGenero} options={GENEROS} placeholder="todos" />
-          </Field>
-          <Field label="Cor/raça">
-            <Select value={corRaca} onChange={setCorRaca} options={CORES_RACA} placeholder="todas" />
-          </Field>
-          <Field label="Ordenar por">
-            <select
-              className="field-select"
-              value={ordenar}
-              onChange={(e) => setOrdenar(e.target.value as Ordenacao)}
-            >
-              {ORDENACOES.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
-              ))}
-            </select>
-          </Field>
-          <button className="btn-buscar" type="submit" disabled={carregando}>
+        <div className="filtro-form-acoes">
+          <SelectField
+            label="Ordenar por"
+            value={ordenar}
+            onChange={(v) => setOrdenar(v as Ordenacao)}
+            options={OP_ORDENACAO}
+          />
+          <Button type="submit" disabled={carregando}>
             {carregando ? 'Buscando…' : 'Buscar'}
-          </button>
+          </Button>
         </div>
 
         <MaisFiltros caminho="Perfil">
-          <CheckGroup
+          <TagToggleGroup
             label="Escolaridade"
-            hint="(qualquer uma)"
-            options={OP_GRAU}
-            selected={escolaridades}
+            hint="qualquer uma"
+            value={escolaridades}
             onChange={setEscolaridades}
+            options={OP_GRAU}
           />
-          <CheckGroup
+          <TagToggleGroup
             label="Estado civil"
-            hint="(qualquer um)"
-            options={OP_CIVIL}
-            selected={estadosCivis}
+            hint="qualquer um"
+            value={estadosCivis}
             onChange={setEstadosCivis}
+            options={OP_CIVIL}
           />
-          <Field label="Situação da candidatura">
-            <select
-              className="field-select"
-              value={situacao}
-              onChange={(e) => setSituacao(e.target.value as FiltroCandidatos['situacao'])}
-            >
-              {SITUACOES.map((s) => (
-                <option key={s.id} value={s.id}>{s.label}</option>
-              ))}
-            </select>
-          </Field>
+          <SelectField
+            label="Situação da candidatura"
+            value={situacao}
+            onChange={(v) => setSituacao(v as FiltroCandidatos['situacao'])}
+            options={OP_SITUACAO}
+          />
         </MaisFiltros>
       </form>
 
-      {erro && <p className="erro">{erro}</p>}
+      {erro && <Alert tone="warn">{erro}</Alert>}
       {resultado && (
         <ResultadoLista
           candidatos={resultado.lista}

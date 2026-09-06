@@ -10,6 +10,9 @@ export type IconName =
   | 'check'
   | 'x'
   | 'user'
+  | 'users'
+  | 'briefcase'
+  | 'link'
   | 'arrow-right'
   | 'star'
   | 'info'
@@ -29,6 +32,25 @@ const PATHS: Record<IconName, React.ReactNode> = {
     <>
       <circle cx="12" cy="8" r="4" />
       <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3 20c0-3.5 3-5 6-5s6 1.5 6 5" />
+      <path d="M16 5.5a3.5 3.5 0 0 1 0 6.9M17 20c0-3-1.4-4.6-3-5.4" />
+    </>
+  ),
+  briefcase: (
+    <>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1" />
+      <path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1" />
     </>
   ),
   'arrow-right': <path d="M9 6l6 6-6 6" />,

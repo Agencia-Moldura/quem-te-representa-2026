@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
@@ -8,25 +8,14 @@ import { MatchEleitoral2026 } from './pages/MatchEleitoral2026'
 import { CaminhoPerfil } from './pages/CaminhoPerfil'
 import { CaminhoCurriculo } from './pages/CaminhoCurriculo'
 import { CaminhoRelacionamento } from './pages/CaminhoRelacionamento'
+import { DesignSystem } from './pages/DesignSystem'
+import './ui/index.css'
 import './style-guide.css'
 import './styles.css'
 
-// Vitrine do design system (QTR.UI): carregada sob demanda para não pesar no
-// bundle do app enquanto os componentes não são aplicados às telas.
-const DesignSystem = lazy(() =>
-  import('./pages/DesignSystem').then((m) => ({ default: m.DesignSystem })),
-)
-
 const router = createBrowserRouter([
-  // /design — sem o "shell" do app. Provisória, para revisão.
-  {
-    path: '/design',
-    element: (
-      <Suspense fallback={null}>
-        <DesignSystem />
-      </Suspense>
-    ),
-  },
+  // /design — vitrine do QTR.UI, sem o "shell" do app.
+  { path: '/design', element: <DesignSystem /> },
   {
     element: <Layout />,
     children: [

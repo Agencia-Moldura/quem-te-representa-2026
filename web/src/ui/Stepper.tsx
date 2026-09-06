@@ -2,6 +2,8 @@ export interface StepperStep {
   label: string
   /** legenda pequena abaixo do rótulo — ex.: "(opcional)" */
   opcional?: boolean
+  /** força o passo como concluído mesmo estando à frente do atual */
+  done?: boolean
 }
 
 interface StepperProps {
@@ -20,8 +22,9 @@ export function Stepper({ steps, atual, onStepClick }: StepperProps) {
   return (
     <div className="qtr-stepper">
       {steps.map((s, i) => {
-        const estado = i < atual ? 'is-complete' : i === atual ? 'is-active' : 'is-upcoming'
-        const clicavel = onStepClick != null && i < atual
+        const completo = i < atual || (s.done === true && i !== atual)
+        const estado = i === atual ? 'is-active' : completo ? 'is-complete' : 'is-upcoming'
+        const clicavel = onStepClick != null && (completo || i < atual)
         const conteudo = (
           <>
             <span className="qtr-stepper-label">

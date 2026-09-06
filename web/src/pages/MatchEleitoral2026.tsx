@@ -2,11 +2,21 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { UFS } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
+import { Button, Icon } from '../ui'
+import type { IconName } from '../ui'
 
-const CAMINHOS = [
+const CAMINHOS: {
+  to: string
+  n: string
+  icon: IconName
+  titulo: string
+  desc: string
+  filtros: string[]
+}[] = [
   {
     to: 'perfil',
     n: '1',
+    icon: 'user',
     titulo: 'Escolher pelo perfil',
     desc: 'Filtre por idade, gênero e cor/raça — quem são as pessoas na disputa.',
     filtros: ['idade', 'gênero', 'cor/raça'],
@@ -14,6 +24,7 @@ const CAMINHOS = [
   {
     to: 'curriculo',
     n: '2',
+    icon: 'briefcase',
     titulo: 'Escolher por currículo',
     desc: 'Filtre por profissão declarada e patrimônio. Cargos anteriores entram numa próxima etapa.',
     filtros: ['profissão', 'patrimônio', 'eleições anteriores (em breve)'],
@@ -21,6 +32,7 @@ const CAMINHOS = [
   {
     to: 'relacionamento',
     n: '3',
+    icon: 'link',
     titulo: 'Escolher por relacionamento político',
     desc: 'Parta das suas escolhas para presidência e governo e veja quem está nas mesmas coligações.',
     filtros: ['coligação', 'presidência', 'governo do estado'],
@@ -48,19 +60,19 @@ export function MatchEleitoral2026() {
     setComecou(true)
   }
 
-  // ---- intro: os 5 passos (no stepper do topo) + Começar ----
+  // ---- intro: chamada + Começar ----
   if (!comecou && !uf) {
     return (
       <section className="intro">
-        <h1 className="page-titulo">Encontre candidatos que combinam com você</h1>
+        <p className="qtr-eyebrow">Match Eleitoral 2026</p>
+        <h1 className="intro-titulo">Encontre candidatos que combinam com você</h1>
         <p className="page-lead">
-          Um jeito rápido de conhecer quem está na disputa em 2026. Siga os passos
-          da barra acima — em cerca de um minuto você chega numa lista de candidatos
-          que fazem sentido pra você.
+          Um jeito rápido de conhecer quem está na disputa em 2026. Siga os passos da barra acima —
+          em cerca de um minuto você chega numa lista de candidatos que fazem sentido pra você.
         </p>
-        <button type="button" className="btn-comecar" onClick={comecar}>
+        <Button icon="arrow-right" onClick={comecar}>
           Começar
-        </button>
+        </Button>
       </section>
     )
   }
@@ -69,6 +81,7 @@ export function MatchEleitoral2026() {
   if (!uf) {
     return (
       <section>
+        <p className="qtr-eyebrow">Passo 1 de 4</p>
         <h1 className="page-titulo">Qual é o seu estado?</h1>
         <p className="page-lead">Ele vale para os três caminhos de busca.</p>
         <div className="uf-grid">
@@ -86,6 +99,7 @@ export function MatchEleitoral2026() {
   // ---- passos 2 e 3: cargo (barra do topo) + caminho ----
   return (
     <section>
+      <p className="qtr-eyebrow">Passo 3 de 4</p>
       <h1 className="page-titulo">Como você quer encontrar um candidato?</h1>
       <p className="page-lead">
         Você está vendo <strong>{cargo || 'todos os cargos'}</strong> em <strong>{uf}</strong>{' '}
@@ -97,13 +111,16 @@ export function MatchEleitoral2026() {
 
       <div className="caminhos">
         {CAMINHOS.map((c) => (
-          <Link key={c.to} to={{ pathname: c.to, search: query }} className="caminho-card">
+          <Link key={c.to} to={{ pathname: c.to, search: query }} className="caminho-card qtr-card">
+            <span className="caminho-icone">
+              <Icon name={c.icon} size={26} strokeWidth={1.8} />
+            </span>
             <span className="caminho-n">Caminho {c.n}</span>
             <h2 className="caminho-titulo">{c.titulo}</h2>
             <p className="caminho-desc">{c.desc}</p>
             <div className="caminho-filtros">
               {c.filtros.map((f) => (
-                <span key={f} className="chip">{f}</span>
+                <span key={f} className="qtr-chip qtr-chip--outline">{f}</span>
               ))}
             </div>
           </Link>

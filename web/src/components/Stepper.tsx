@@ -1,13 +1,14 @@
 import { useLocation } from 'react-router-dom'
 import { useCarrinho } from '../lib/carrinho'
 import { useContexto } from '../lib/contexto'
+import { Stepper as StepperUI } from '../ui'
 
 const PASSOS = [
-  { n: 1, label: 'Estado' },
-  { n: 2, label: 'Cargo' },
-  { n: 3, label: 'Caminho' },
-  { n: 4, label: 'Candidatos' },
-  { n: 5, label: 'Sua lista', opcional: true },
+  { label: 'Estado' },
+  { label: 'Cargo' },
+  { label: 'Caminho' },
+  { label: 'Candidatos' },
+  { label: 'Sua lista', opcional: true },
 ]
 
 export function Stepper() {
@@ -16,27 +17,16 @@ export function Stepper() {
   const { pathname } = useLocation()
   const emCaminho = /\/(perfil|curriculo|relacionamento)$/.test(pathname)
 
-  // passo em que a pessoa está
-  const passo = uf ? (emCaminho ? 4 : 3) : 1
+  // passo atual (base 0): sem estado → 0; com estado e fora do caminho → 2; no caminho → 3
+  const atual = uf ? (emCaminho ? 3 : 2) : 0
+
+  const steps = PASSOS.map((p, i) =>
+    i === 4 ? { ...p, done: itens.length > 0 } : p,
+  )
 
   return (
-    <ol className="stepper">
-      {PASSOS.map((s) => {
-        const completo = s.n === 5 ? itens.length > 0 : s.n < passo
-        const ativo = s.n === passo
-        return (
-          <li
-            key={s.n}
-            className={`stepper-step${completo ? ' is-complete' : ''}${ativo ? ' is-active' : ''}`}
-          >
-            <span className="stepper-dot" />
-            <span className="stepper-label">
-              {s.label}
-              {s.opcional && <span className="stepper-opc"> (opcional)</span>}
-            </span>
-          </li>
-        )
-      })}
-    </ol>
+    <nav className="stepper-wrap" aria-label="progresso">
+      <StepperUI steps={steps} atual={atual} />
+    </nav>
   )
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-type StatusTone = 'accent' | 'solid' | 'warn' | 'info' | 'success' | 'neutral'
+type StatusTone = 'accent' | 'solid' | 'warn' | 'info' | 'success' | 'neutral' | 'danger'
 
 interface StatusBadgeProps {
   children: ReactNode

@@ -29,28 +29,40 @@ Vitrine viva: **`/design`** (rota fora do shell do app).
 | `Alert.tsx` | `<Alert tone>` — `neutral` `info` `success` `warn` | 08 |
 | `Card.tsx` | `<Card flat padLg>` + `CardIcon` `CardTitle` `CardText` | 07 |
 
-Import único de estilos: `import './ui/index.css'` (traz `tokens.css` + `ui.css`).
+Import único de estilos: `import './ui/index.css'` (traz `tokens.css` + `ui.css`) —
+já feito no `main.tsx`, então as classes `.qtr-*` valem em todo o app.
 Barril de componentes: `import { Button, SelectField, … } from './ui'`.
 
-Envolva a área migrada com `className="qtr-scope"` para herdar fonte/cor do guia.
+## Aplicado (2026-09-06)
 
-## Ainda NÃO aplicado
+O `main.tsx` importa `ui/index.css` antes de tudo. O `style-guide.css` virou uma
+**ponte**: os tokens legados (`--color-*`, `--space-*`, `--radius-*`…) agora
+apontam para os `--qtr-*`, então o `styles.css` herda a paleta/fontes QTR.
 
-Nada em `components/` ou `pages/` (fora `DesignSystem.tsx`) usa esta pasta.
-O `style-guide.css` e o `styles.css` atuais continuam valendo. A migração tela a
-tela é o próximo passo — mapa sugerido:
+Telas migradas para os componentes:
 
-- `FiltroGlobal` / barra de contexto → `SelectField`
-- `CaminhoPerfil` idade/gênero/cor → `OptionCardGroup` / `SelectField` / `SwatchSelectGroup`
-- `CaminhoCurriculo` profissão/patrimônio → `TagToggleGroup`
-- `CheckGroup` (`components/Campos.tsx`) → `TagToggleGroup`
-- `Stepper` (`components/Stepper.tsx`) → `ui/Stepper` (5 passos)
-- `MaisFiltros` continua `<details>`, só reskin
-- botões (`.btn-buscar`, `.btn-comecar`) → `Button`
-- `ResultadoLista` situação → `StatusBadge`; chips → `Chip`
+| onde | usa |
+|---|---|
+| `components/Stepper` | `ui/Stepper` (5 passos, passo 5 `done` quando há itens na lista) |
+| `components/CaminhoHeader` | `Breadcrumb` + `qtr-eyebrow` + `Chip` de contexto |
+| `pages/CaminhoPerfil` | `TagToggleGroup` (idade/escolaridade/estado civil), `OptionCardGroup` (gênero), `SwatchSelectGroup` (cor/raça), `SelectField`, `Button`, `Alert` |
+| `pages/CaminhoCurriculo` | idem + `Checkbox` (reeleição); `Alert` no lugar do `aviso-fase2` |
+| `pages/CaminhoRelacionamento` | `SelectField` (presidência/governo), `Button`, `Chip`, `StatusBadge` |
+| `pages/MatchEleitoral2026` | `Button`, `Icon` nos cards de caminho, `qtr-eyebrow` |
+| `components/ResultadoLista` | `StatusBadge` (situação), `qtr-chip` (ribbon) |
+| `components/FiltroGlobal` | selects reestilizados (CSS) |
+
+`components/Campos.tsx` foi removido (só `Field`/`Select`/`CheckGroup`, tudo
+substituído). Listas de opções no formato dos componentes: `lib/opcoes.ts`.
+
+## Ainda pendente
+
+- `Carrinho` (trilho + gaveta) — só herdou tokens, sem refactor de componente.
+- `ResultadoLista` — card ainda é CSS próprio; a foto do vice (chapa) entra depois.
+- `Pagination` e `TextField` existem mas nenhuma tela usa ainda.
 
 ## Notas
 
 - Fontes carregadas por `@import` no topo de `tokens.css` (sem tocar em `index.html`).
-- Tudo com prefixo `qtr-` para conviver com o CSS atual sem conflito.
+- Tudo com prefixo `qtr-` para conviver com o CSS legado sem conflito.
 - `SelectField` usa `<select>` nativo (chevron via `background-image` data-URI).

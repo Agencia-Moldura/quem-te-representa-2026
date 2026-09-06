@@ -2,27 +2,31 @@ import { useEffect, useMemo, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
-import { CheckGroup, Field, Select } from '../components/Campos'
 import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
 import { buscarCandidatos, ocupacoesDisponiveis } from '../lib/api'
 import type { FiltroCandidatos, ResultadoBusca } from '../lib/api'
-import {
-  CORES_RACA,
-  FAIXAS_IDADE,
-  FAIXAS_PATRIMONIO,
-  GENEROS,
-  GRAUS_INSTRUCAO,
-  OCUPACOES_COMUNS,
-  ORDENACOES,
-  SITUACOES,
-} from '../lib/constants'
+import { OCUPACOES_COMUNS } from '../lib/constants'
 import type { OpcaoOcupacao, Ordenacao } from '../lib/constants'
 import { useContexto } from '../lib/contexto'
-
-const OPCOES_FAIXA = FAIXAS_PATRIMONIO.map((f) => ({ value: f.id, label: f.label }))
-const OP_IDADE = FAIXAS_IDADE.map((f) => ({ value: f.id, label: f.label }))
-const OP_GRAU = GRAUS_INSTRUCAO.map(([v, l]) => ({ value: v, label: l }))
+import {
+  OP_COR_RACA,
+  OP_GENERO_CARDS,
+  OP_GRAU,
+  OP_IDADE,
+  OP_ORDENACAO,
+  OP_PATRIMONIO,
+  OP_SITUACAO,
+} from '../lib/opcoes'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  OptionCardGroup,
+  SelectField,
+  SwatchSelectGroup,
+  TagToggleGroup,
+} from '../ui'
 
 // grupo de profissão tem candidato no recorte atual?
 function grupoExiste(op: OpcaoOcupacao, valores: string[]): boolean {
@@ -58,7 +62,7 @@ export function CaminhoCurriculo() {
       .catch(() => setDispOcup([]))
   }, [uf, cargo])
 
-  // limpa seleções de profissão que não existem mais no recorte
+  // só mostra grupos de profissão que têm candidato no recorte
   const gruposVisiveis = useMemo(() => {
     if (!dispOcup) return OCUPACOES_COMUNS
     return OCUPACOES_COMUNS.filter((op) => grupoExiste(op, dispOcup))
@@ -106,76 +110,87 @@ export function CaminhoCurriculo() {
         sub="Profissão declarada e patrimônio (soma dos bens no registro). Marque quantas opções quiser — o filtro é por união."
       />
 
-      <form className="filtros filtros-checks" onSubmit={buscar}>
-        <CheckGroup
+      <form className="qtr-card filtro-form" onSubmit={buscar}>
+        <TagToggleGroup
           label="Profissão"
-          hint={dispOcup ? '(só as que existem para este cargo/estado)' : '(carregando…)'}
-          options={gruposVisiveis.map((o) => ({ value: o.id, label: o.label }))}
-          selected={ocupacoes}
+          hint={dispOcup ? 'só as que existem para este cargo/estado' : 'carregando…'}
+          value={ocupacoes}
           onChange={setOcupacoes}
+          options={gruposVisiveis.map((o) => ({ value: o.id, label: o.label }))}
         />
-        <CheckGroup
+        <TagToggleGroup
           label="Faixa de patrimônio"
-          hint="(qualquer uma das marcadas)"
-          options={OPCOES_FAIXA}
-          selected={faixas}
+          hint="qualquer uma das marcadas"
+          value={faixas}
           onChange={setFaixas}
+          options={OP_PATRIMONIO}
         />
 
-        <div className="filtros-rodape">
-          <Field label="Ordenar por">
-            <select
-              className="field-select"
-              value={ordenar}
-              onChange={(e) => setOrdenar(e.target.value as Ordenacao)}
-            >
-              {ORDENACOES.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
-              ))}
-            </select>
-          </Field>
-          <label className="field field-check">
-            <input type="checkbox" checked={reeleicao} onChange={(e) => setReeleicao(e.target.checked)} />
-            <span>Concorrendo à reeleição</span>
-          </label>
-          <button className="btn-buscar" type="submit" disabled={carregando}>
+        <div className="filtro-form-acoes">
+          <SelectField
+            label="Ordenar por"
+            value={ordenar}
+            onChange={(v) => setOrdenar(v as Ordenacao)}
+            options={OP_ORDENACAO}
+          />
+          <Checkbox checked={reeleicao} onChange={setReeleicao}>
+            Concorrendo à reeleição
+          </Checkbox>
+          <Button type="submit" disabled={carregando}>
             {carregando ? 'Buscando…' : 'Buscar'}
-          </button>
+          </Button>
         </div>
 
         <MaisFiltros caminho="Currículo">
-          <CheckGroup label="Faixa de idade" hint="(qualquer uma)" options={OP_IDADE}
-            selected={faixasIdade} onChange={setFaixasIdade} />
-          <CheckGroup label="Escolaridade" hint="(qualquer uma)" options={OP_GRAU}
-            selected={escolaridades} onChange={setEscolaridades} />
-          <div className="filtros-rodape">
-            <Field label="Gênero">
-              <Select value={genero} onChange={setGenero} options={GENEROS} placeholder="todos" />
-            </Field>
-            <Field label="Cor/raça">
-              <Select value={corRaca} onChange={setCorRaca} options={CORES_RACA} placeholder="todas" />
-            </Field>
-            <Field label="Situação da candidatura">
-              <select className="field-select" value={situacao}
-                onChange={(e) => setSituacao(e.target.value as FiltroCandidatos['situacao'])}>
-                {SITUACOES.map((s) => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
+          <TagToggleGroup
+            label="Faixa de idade"
+            hint="qualquer uma"
+            value={faixasIdade}
+            onChange={setFaixasIdade}
+            options={OP_IDADE}
+          />
+          <TagToggleGroup
+            label="Escolaridade"
+            hint="qualquer uma"
+            value={escolaridades}
+            onChange={setEscolaridades}
+            options={OP_GRAU}
+          />
+          <OptionCardGroup
+            label="Gênero"
+            value={genero}
+            onChange={(v) => setGenero(v === genero ? '' : v)}
+            options={OP_GENERO_CARDS}
+          />
+          <SwatchSelectGroup
+            label="Cor/raça"
+            multiple={false}
+            value={corRaca ? [corRaca] : []}
+            onChange={(a) => setCorRaca(a[0] ?? '')}
+            options={OP_COR_RACA}
+          />
+          <SelectField
+            label="Situação da candidatura"
+            value={situacao}
+            onChange={(v) => setSituacao(v as FiltroCandidatos['situacao'])}
+            options={OP_SITUACAO}
+          />
         </MaisFiltros>
       </form>
 
-      <div className="aviso-fase2">
-        <strong>Eleições anteriores / cargos já exercidos</strong> — ainda não carregado.
-        Entra na Fase 2 (cruzamento de candidaturas de 2018–2024 por CPF).
-        O campo <code>st_reeleicao</code> do TSE também só deve ser preenchido mais perto do pleito.
-      </div>
+      <Alert tone="info">
+        <strong>Eleições anteriores / cargos já exercidos</strong> ainda não entraram — é a Fase 2
+        (cruzamento de candidaturas de 2018–2024). O campo <code>st_reeleicao</code> do TSE também
+        só deve ser preenchido mais perto do pleito.
+      </Alert>
 
-      {erro && <p className="erro">{erro}</p>}
+      {erro && <Alert tone="warn">{erro}</Alert>}
       {resultado && (
-        <ResultadoLista candidatos={resultado.lista} totalFiltrado={resultado.totalFiltrado} total={resultado.total} />
+        <ResultadoLista
+          candidatos={resultado.lista}
+          totalFiltrado={resultado.totalFiltrado}
+          total={resultado.total}
+        />
       )}
     </section>
   )

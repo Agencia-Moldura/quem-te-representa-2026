@@ -4,6 +4,14 @@ import { relacoesExecutivas } from '../lib/api'
 import { useCarrinho } from '../lib/carrinho'
 import type { Candidato } from '../types'
 import { brl, iniciais, nomeExibicao, titulo, urlPerfilTse } from '../lib/format'
+import { StatusBadge } from '../ui'
+
+const SIT_TONE = {
+  ok: 'success',
+  warn: 'warn',
+  bad: 'danger',
+  neutral: 'neutral',
+} as const
 
 type ExtraChips = (c: Candidato) => string[]
 
@@ -154,7 +162,7 @@ function CandidatoCard({
       {extras.length > 0 && (
         <div className="cand-ribbon">
           {extras.map((e) => (
-            <span key={e} className="cand-ribbon-item">{e}</span>
+            <span key={e} className="qtr-chip qtr-chip--media cand-ribbon-item">{e}</span>
           ))}
         </div>
       )}
@@ -199,7 +207,7 @@ function CandidatoCard({
           {c.valor_total_bens != null ? brl(c.valor_total_bens) : 'sem bens declarados'}
           {c.qtd_bens ? <span className="cand-bens-sub"> · {c.qtd_bens} bens</span> : null}
         </span>
-        {sit && <span className={`cand-situacao cand-situacao--${sit.tipo}`}>{sit.txt}</span>}
+        {sit && <StatusBadge tone={SIT_TONE[sit.tipo]}>{sit.txt}</StatusBadge>}
       </div>
 
       <ChapasAliadas c={c} rel={rel} />

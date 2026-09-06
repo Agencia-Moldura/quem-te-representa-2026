@@ -2,22 +2,24 @@ import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CaminhoHeader } from '../components/CaminhoHeader'
-import { CheckGroup, Field, Select } from '../components/Campos'
 import { MaisFiltros } from '../components/MaisFiltros'
 import { ResultadoLista } from '../components/ResultadoLista'
-import {
-  candidatosAlinhados,
-  governadoresDaUf,
-  presidentes,
-  siglasDaCandidatura,
-} from '../lib/api'
-import { CORES_RACA, FAIXAS_IDADE, GENEROS, GRAUS_INSTRUCAO } from '../lib/constants'
+import { candidatosAlinhados, governadoresDaUf, presidentes, siglasDaCandidatura } from '../lib/api'
 import { useContexto } from '../lib/contexto'
 import { nomeExibicao, rotuloOpcao, titulo } from '../lib/format'
+import { OP_COR_RACA, OP_GENERO_CARDS, OP_GRAU, OP_IDADE } from '../lib/opcoes'
 import type { Candidato } from '../types'
-
-const OP_IDADE = FAIXAS_IDADE.map((f) => ({ value: f.id, label: f.label }))
-const OP_GRAU = GRAUS_INSTRUCAO.map(([v, l]) => ({ value: v, label: l }))
+import {
+  Alert,
+  Button,
+  Chip,
+  ChipGroup,
+  OptionCardGroup,
+  SelectField,
+  StatusBadge,
+  SwatchSelectGroup,
+  TagToggleGroup,
+} from '../ui'
 
 interface Escolha {
   cand: Candidato
@@ -114,65 +116,82 @@ export function CaminhoRelacionamento() {
         sub="Diga em quem você pensa em votar para presidência e para o governo do seu estado. Listamos os candidatos cujo partido integra a coligação de uma dessas candidaturas (ou das duas)."
       />
 
-      <div className="filtros filtros-rel">
-          <Field label="Presidência" hint="(opcional)">
-            <select className="field-select" value={presSq} onChange={(e) => setPresSq(e.target.value)}>
-              <option value="">— nenhuma —</option>
-              {presis.map((p) => (
-                <option key={p.sq_candidato} value={p.sq_candidato}>
-                  {rotuloOpcao(p)}
-                </option>
-              ))}
-            </select>
-          </Field>
+      <div className="qtr-card filtro-form">
+        <div className="filtro-form-linha">
+          <SelectField
+            label="Presidência"
+            hint="(opcional)"
+            placeholder="— nenhuma —"
+            value={presSq}
+            onChange={setPresSq}
+            options={presis.map((p) => ({ value: p.sq_candidato, label: rotuloOpcao(p) }))}
+          />
+          <SelectField
+            label={`Governo de ${uf}`}
+            hint="(opcional)"
+            placeholder="— nenhuma —"
+            value={govSq}
+            onChange={setGovSq}
+            options={govs.map((g) => ({
+              value: g.sq_candidato,
+              label: g.nm_coligacao ? `${rotuloOpcao(g)} — ${g.nm_coligacao}` : rotuloOpcao(g),
+            }))}
+          />
+        </div>
 
-          <Field label={`Governo de ${uf}`} hint="(opcional)">
-            <select className="field-select" value={govSq} onChange={(e) => setGovSq(e.target.value)}>
-              <option value="">— nenhuma —</option>
-              {govs.map((g) => (
-                <option key={g.sq_candidato} value={g.sq_candidato}>
-                  {rotuloOpcao(g)}{g.nm_coligacao ? ` — ${g.nm_coligacao}` : ''}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <button className="btn-buscar" type="button" onClick={buscar} disabled={carregando}>
+        <div className="filtro-form-acoes">
+          <Button type="button" onClick={buscar} disabled={carregando}>
             {carregando ? 'Buscando…' : 'Ver candidatos alinhados'}
-          </button>
+          </Button>
+        </div>
 
-          <MaisFiltros caminho="Relacionamento">
-            <CheckGroup label="Faixa de idade" hint="(qualquer uma)" options={OP_IDADE}
-              selected={faixasIdade} onChange={setFaixasIdade} />
-            <CheckGroup label="Escolaridade" hint="(qualquer uma)" options={OP_GRAU}
-              selected={escolaridades} onChange={setEscolaridades} />
-            <div className="filtros-rodape">
-              <Field label="Gênero">
-                <Select value={genero} onChange={setGenero} options={GENEROS} placeholder="todos" />
-              </Field>
-              <Field label="Cor/raça">
-                <Select value={corRaca} onChange={setCorRaca} options={CORES_RACA} placeholder="todas" />
-              </Field>
-            </div>
-          </MaisFiltros>
+        <MaisFiltros caminho="Relacionamento">
+          <TagToggleGroup
+            label="Faixa de idade"
+            hint="qualquer uma"
+            value={faixasIdade}
+            onChange={setFaixasIdade}
+            options={OP_IDADE}
+          />
+          <TagToggleGroup
+            label="Escolaridade"
+            hint="qualquer uma"
+            value={escolaridades}
+            onChange={setEscolaridades}
+            options={OP_GRAU}
+          />
+          <OptionCardGroup
+            label="Gênero"
+            value={genero}
+            onChange={(v) => setGenero(v === genero ? '' : v)}
+            options={OP_GENERO_CARDS}
+          />
+          <SwatchSelectGroup
+            label="Cor/raça"
+            multiple={false}
+            value={corRaca ? [corRaca] : []}
+            onChange={(a) => setCorRaca(a[0] ?? '')}
+            options={OP_COR_RACA}
+          />
+        </MaisFiltros>
       </div>
 
-      {erro && <p className="erro">{erro}</p>}
+      {erro && <Alert tone="warn">{erro}</Alert>}
 
       {(presEscolha || govEscolha) && (
-        <div className="coligacao-box">
+        <div className="qtr-card coligacao-box">
           {[presEscolha, govEscolha].filter((x): x is Escolha => !!x).map((e) => (
             <div key={e.cand.sq_candidato} className="coligacao-linha">
               <div className="coligacao-nome">
                 {nomeExibicao(e.cand)} · {titulo(e.cand.ds_cargo)}
                 {e.cand.nm_coligacao ? ` — ${titulo(e.cand.nm_coligacao)}` : ' (partido isolado)'}
-                {e.espectro ? <span className="chip chip-espectro">{e.espectro}</span> : null}
+                {e.espectro ? <StatusBadge tone="solid">{e.espectro}</StatusBadge> : null}
               </div>
-              <div className="chips">
+              <ChipGroup>
                 {e.siglas.map((s) => (
-                  <span key={s} className="chip">{s}</span>
+                  <Chip key={s} variant="outline">{s}</Chip>
                 ))}
-              </div>
+              </ChipGroup>
             </div>
           ))}
         </div>
