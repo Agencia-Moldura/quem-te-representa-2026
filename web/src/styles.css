@@ -32,7 +32,7 @@ img { max-width: 100%; }
 
 .footer {
   max-width: 1080px; margin: 0 auto; width: 100%;
-  padding: var(--space-4) var(--space-6) var(--space-6);
+  padding: var(--space-4) var(--space-6) 104px; /* espaço p/ a barra flutuante */
   color: var(--color-text-muted); font-size: var(--font-size-xs);
 }
 
@@ -45,14 +45,18 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   FILTRO GLOBAL (barra sticky Estado + Cargo)
+   FILTRO GLOBAL — barra flutuante inferior (Estado + Cargo)
    ========================================================================== */
 .filtro-global {
-  position: sticky; top: 0; z-index: 20;
+  position: fixed; z-index: 40;
+  bottom: var(--space-5); left: 50%; transform: translateX(-50%);
   display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
-  padding: var(--space-3) var(--space-6);
-  background: var(--qtr-violet-50);
-  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-5);
+  max-width: calc(100vw - 2 * var(--space-4));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 34px rgba(27, 19, 48, 0.18);
 }
 .fg-titulo {
   font-family: var(--qtr-font-display);
@@ -68,12 +72,29 @@ img { max-width: 100%; }
   background-color: var(--color-surface); color: var(--color-text);
   background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236D28D9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  cursor: pointer;
+  cursor: pointer; max-width: 46vw; text-overflow: ellipsis;
 }
 .filtro-global select:focus { outline: none; box-shadow: var(--qtr-ring); }
 .fg-limpar {
   background: none; border: 0; color: var(--color-primary); font: inherit;
   font-size: var(--font-size-xs); cursor: pointer; text-decoration: underline; padding: var(--space-1);
+}
+
+@media (max-width: 560px) {
+  .filtro-global {
+    left: var(--space-3); right: var(--space-3); transform: none;
+    bottom: var(--space-3); border-radius: var(--radius-md);
+    justify-content: center; gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    max-width: none; flex-wrap: nowrap;
+  }
+  .filtro-global .fg-titulo,
+  .filtro-global .fg-em { display: none; }
+  .filtro-global select {
+    min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis;
+    padding: var(--space-2) 30px var(--space-2) var(--space-3);
+  }
+  .fg-limpar { flex: none; }
 }
 
 /* ==========================================================================
@@ -417,8 +438,8 @@ img { max-width: 100%; }
 .cr-foto--g { width: 40px; height: 40px; }
 
 .cr-trilho {
-  position: fixed; right: 0; top: 150px; z-index: 45;
-  width: 58px; max-height: calc(100vh - 190px);
+  position: fixed; right: 0; top: 140px; z-index: 45;
+  width: 58px; max-height: calc(100vh - 260px);
   display: flex; flex-direction: column;
   background: var(--color-surface); border: 1px solid var(--color-border); border-right: 0;
   border-radius: var(--radius-md) 0 0 var(--radius-md);
@@ -482,13 +503,16 @@ img { max-width: 100%; }
   .content { padding-right: 84px; }
 }
 @media (max-width: 520px) {
+  /* trilho flutua logo acima da barra de estado/cargo */
   .cr-trilho {
-    top: auto; bottom: 0; width: 100%; max-height: 96px; flex-direction: row;
-    border-radius: var(--radius-md) var(--radius-md) 0 0; border-right: 1px solid var(--color-border); border-bottom: 0;
+    top: auto; bottom: 72px; left: var(--space-3); right: var(--space-3); width: auto;
+    max-height: 84px; flex-direction: row;
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
   }
-  .cr-trilho-topo { border-radius: var(--radius-md) 0 0 0; flex-direction: row; }
+  .cr-trilho-topo { border-radius: var(--radius-md) 0 0 var(--radius-md); flex-direction: row; }
   .cr-trilho-fotos { flex-direction: row; padding: var(--space-2); }
   .cand-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
   .cand-card { aspect-ratio: auto; }
   .intro-titulo { font-size: 32px; }
+  .footer { padding-bottom: 168px; }
 }

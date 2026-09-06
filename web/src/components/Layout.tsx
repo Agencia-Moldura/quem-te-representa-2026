@@ -16,7 +16,6 @@ export function Layout() {
       </header>
 
       <Stepper />
-      <FiltroGlobal />
 
       <main className="content">
         <Outlet />
@@ -27,6 +26,7 @@ export function Layout() {
         Suplentes de senador ficam de fora. Protótipo preliminar.
       </footer>
 
+      <FiltroGlobal />
       <Carrinho />
     </div>
   )
